@@ -7,49 +7,66 @@
   <style>
     body {
       margin: 0;
-      background: #fff0f5;
       overflow: hidden;
-      height: 100vh;
+      background: #fff0f5;
       font-family: 'Segoe UI', sans-serif;
     }
 
-    #movingText {
+    #text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #d6336c;
+      font-size: 2em;
+      font-weight: bold;
+      z-index: 1;
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 20px;
+    }
+
+    .icecream {
       position: absolute;
       font-size: 2em;
-      color: #d6336c;
-      font-weight: bold;
-      user-select: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        top: -10%;
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        top: 110%;
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="movingText">Lena, will you date me?</div>
+  <div id="text">Lena, will you go on a date with me? 💌</div>
 
   <script>
-    const text = document.getElementById('movingText');
-    let x = 100;
-    let y = 100;
-    let dx = 2;
-    let dy = 2;
+    const createIceCream = () => {
+      const ic = document.createElement('div');
+      ic.classList.add('icecream');
+      ic.textContent = '🍦';
+      ic.style.left = Math.random() * 100 + 'vw';
+      ic.style.animationDuration = (4 + Math.random() * 4) + 's';
+      ic.style.fontSize = (1 + Math.random() * 2) + 'em';
+      document.body.appendChild(ic);
 
-    function moveText() {
-      const rect = text.getBoundingClientRect();
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      setTimeout(() => {
+        ic.remove();
+      }, 8000);
+    };
 
-      if (x + rect.width >= width || x <= 0) dx = -dx;
-      if (y + rect.height >= height || y <= 0) dy = -dy;
-
-      x += dx;
-      y += dy;
-
-      text.style.left = x + 'px';
-      text.style.top = y + 'px';
-
-      requestAnimationFrame(moveText);
-    }
-
-    moveText();
+    setInterval(createIceCream, 300); // každých 300 ms padne nová zmrzlina
   </script>
 </body>
 </html>
