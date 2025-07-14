@@ -3,41 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lena, will you go on a date with me?</title>
+  <title>Lena 💖</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
       background: #fff0f5;
-      text-align: center;
-      padding: 50px;
+      overflow: hidden;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
     }
-    h1 {
+
+    #movingText {
+      position: absolute;
+      font-size: 2em;
       color: #d6336c;
-      font-size: 2.5em;
-    }
-    p {
-      font-size: 1.2em;
-      margin-top: 20px;
-    }
-    button {
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1em;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 10px;
-    }
-    button:hover {
-      background-color: #ff1493;
+      font-weight: bold;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <h1>Hey Lena 💕</h1>
-  <p>Would you like to go on a date with me?</p>
-  <button onclick="alert('Yay! I’ll plan something nice 🌹')">Yes 💖</button>
-  <button onclick="alert('Maybe next time 😢')">Maybe</button>
+  <div id="movingText">Lena, will you go on a date with me? 💌</div>
+
+  <script>
+    const text = document.getElementById('movingText');
+    let x = 100;
+    let y = 100;
+    let dx = 2;
+    let dy = 2;
+
+    function moveText() {
+      const rect = text.getBoundingClientRect();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      if (x + rect.width >= width || x <= 0) dx = -dx;
+      if (y + rect.height >= height || y <= 0) dy = -dy;
+
+      x += dx;
+      y += dy;
+
+      text.style.left = x + 'px';
+      text.style.top = y + 'px';
+
+      requestAnimationFrame(moveText);
+    }
+
+    moveText();
+  </script>
 </body>
 </html>
