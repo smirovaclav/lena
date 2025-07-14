@@ -12,16 +12,29 @@
       font-family: 'Orbitron', sans-serif;
     }
 
-    #movingText {
-      position: absolute;
-      font-size: 5vw; /* velikost textu přizpůsobená obrazovce */
-      font-weight: bold;
-      color: #d6336c;
-      user-select: none;
-      white-space: nowrap;
-      z-index: 2;
-      max-width: 90vw;
-    }
+#movingText {
+  position: absolute;
+  font-size: 4vw; /* základní velikost (menší než předtím) */
+  font-weight: bold;
+  color: #d6336c;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 2;
+  max-width: 90vw;
+}
+
+@media (max-width: 600px) {
+  #movingText {
+    font-size: 6vw; /* větší na malých obrazovkách */
+  }
+}
+
+@media (min-width: 1000px) {
+  #movingText {
+    font-size: 3vw; /* menší na větších obrazovkách = notebook, desktop */
+  }
+}
+
 
     .icecream {
       position: absolute;
