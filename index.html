@@ -3,70 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lena</title>
+  <title>Lena 💖</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
+      background: white; /* čisté bílé pozadí */
       overflow: hidden;
-      background: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
     }
 
-    #text {
+    #movingText {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #d6336c;
+      font-family: 'Orbitron', sans-serif;
       font-size: 2em;
       font-weight: bold;
-      z-index: 1;
-      text-align: center;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 20px;
-    }
-
-    .icecream {
-      position: absolute;
-      font-size: 2em;
-      animation: fall linear infinite;
-    }
-
-    @keyframes fall {
-      0% {
-        top: -10%;
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        top: 110%;
-        opacity: 0;
-      }
+      color: #d6336c;
+      user-select: none;
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <div id="text">Lena, will you date me?</div>
+  <div id="movingText">Lena, will you go on a date with me? 💌</div>
 
   <script>
-    const createIceCream = () => {
-      const ic = document.createElement('div');
-      ic.classList.add('icecream');
-      ic.textContent = '🍦';
-      ic.style.left = Math.random() * 100 + 'vw';
-      ic.style.animationDuration = (4 + Math.random() * 4) + 's';
-      ic.style.fontSize = (1 + Math.random() * 2) + 'em';
-      document.body.appendChild(ic);
+    const text = document.getElementById('movingText');
+    let x = 100;
+    let y = 100;
+    let dx = 2;
+    let dy = 2;
 
-      setTimeout(() => {
-        ic.remove();
-      }, 8000);
-    };
+    const colors = ['#d6336c', '#007bff', '#28a745', '#ffc107', '#6f42c1', '#20c997'];
 
-    setInterval(createIceCream, 300); // každých 300 ms padne nová zmrzlina
+    function changeColor() {
+      text.style.color = colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function move() {
+      const rect = text.getBoundingClientRect();
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      if (x + rect.width >= width || x <= 0) {
+        dx = -dx;
+        changeColor();
+      }
+      if (y + rect.height >= height || y <= 0) {
+        dy = -dy;
+        changeColor();
+      }
+
+      x += dx;
+      y += dy;
+
+      text.style.left = x + 'px';
+      text.style.top = y + 'px';
+
+      requestAnimationFrame(move);
+    }
+
+    move();
   </script>
 </body>
 </html>
