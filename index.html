@@ -4,73 +4,93 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
-      background: white; /* čisté bílé pozadí */
+      background: white;
       overflow: hidden;
       font-family: 'Orbitron', sans-serif;
     }
 
-#movingText {
-  position: absolute;
-  font-size: 4vw; /* základní velikost (menší než předtím) */
-  font-weight: bold;
-  color: #d6336c;
-  user-select: none;
-  white-space: nowrap;
-  z-index: 2;
-  max-width: 90vw;
-}
-
-@media (max-width: 600px) {
-  #movingText {
-    font-size: 6vw; /* větší na malých obrazovkách */
-  }
-}
-
-@media (min-width: 1000px) {
-  #movingText {
-    font-size: 3vw; /* menší na větších obrazovkách = notebook, desktop */
-  }
-}
-
-    .icecream {
+    #movingText {
       position: absolute;
-      font-size: 4vw; /* velikost přizpůsobená šířce obrazovky */
-      animation: fall linear infinite;
-      z-index: 1;
-    }
-
-    @keyframes fall {
-      0% {
-        top: -10%;
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        top: 110%;
-        opacity: 0;
-      }
+      font-size: 4vw;
+      font-weight: bold;
+      color: #d6336c;
+      user-select: none;
+      white-space: nowrap;
+      z-index: 2;
+      max-width: 90vw;
     }
 
     @media (max-width: 600px) {
       #movingText {
         font-size: 6vw;
       }
-      .icecream {
-        font-size: 5vw;
+    }
+
+    @media (min-width: 1000px) {
+      #movingText {
+        font-size: 3vw;
       }
+    }
+
+    .icecream {
+      position: absolute;
+      font-size: 4vw;
+      animation: fall linear infinite;
+      z-index: 1;
+    }
+
+    @keyframes fall {
+      0% { top: -10%; opacity: 0; }
+      10% { opacity: 1; }
+      100% { top: 110%; opacity: 0; }
+    }
+
+    #water {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(to top, #0077be, #66ccff);
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    #swimmer {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      z-index: 1;
+      animation: dive 2s ease-in forwards, swim 4s 2s linear infinite;
+      user-select: none;
+    }
+
+    @keyframes dive {
+      0%   { bottom: 200px; opacity: 0; }
+      30%  { opacity: 1; }
+      100% { bottom: 80px; }
+    }
+
+    @keyframes swim {
+      0%   { left: -10%; transform: scaleX(1); }
+      50%  { transform: scaleX(1); }
+      100% { left: 110%; transform: scaleX(-1); }
     }
   </style>
 </head>
 <body>
+
   <div id="movingText">Lena, will you date me?</div>
+  <div id="water"></div>
+  <div id="swimmer">🏊‍♂️</div>
 
   <script>
-    // Text odrážející se jako DVD logo
+    // DVD-style text movement
     const text = document.getElementById('movingText');
     let x = 50;
     let y = 50;
@@ -108,7 +128,7 @@
 
     moveText();
 
-    // Padající zmrzlinky
+    // Falling ice creams 🍦
     function createIceCream() {
       const ic = document.createElement('div');
       ic.classList.add('icecream');
