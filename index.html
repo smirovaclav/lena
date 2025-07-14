@@ -14,17 +14,18 @@
 
     #movingText {
       position: absolute;
-      font-size: 2em;
+      font-size: 5vw; /* velikost textu přizpůsobená obrazovce */
       font-weight: bold;
       color: #d6336c;
       user-select: none;
       white-space: nowrap;
       z-index: 2;
+      max-width: 90vw;
     }
 
     .icecream {
       position: absolute;
-      font-size: 2em;
+      font-size: 4vw; /* velikost přizpůsobená šířce obrazovky */
       animation: fall linear infinite;
       z-index: 1;
     }
@@ -42,6 +43,15 @@
         opacity: 0;
       }
     }
+
+    @media (max-width: 600px) {
+      #movingText {
+        font-size: 6vw;
+      }
+      .icecream {
+        font-size: 5vw;
+      }
+    }
   </style>
 </head>
 <body>
@@ -50,10 +60,10 @@
   <script>
     // Text odrážející se jako DVD logo
     const text = document.getElementById('movingText');
-    let x = 100;
-    let y = 100;
-    let dx = 2;
-    let dy = 2;
+    let x = 50;
+    let y = 50;
+    let dx = 1.5;
+    let dy = 1.5;
 
     const colors = ['#d6336c', '#007bff', '#28a745', '#ffc107', '#6f42c1', '#20c997'];
 
@@ -93,7 +103,6 @@
       ic.textContent = '🍦';
       ic.style.left = Math.random() * 100 + 'vw';
       ic.style.animationDuration = (4 + Math.random() * 4) + 's';
-      ic.style.fontSize = (1 + Math.random() * 2) + 'em';
       document.body.appendChild(ic);
 
       setTimeout(() => {
