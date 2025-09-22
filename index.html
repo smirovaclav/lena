@@ -3,186 +3,301 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Václav Šmíro – Osobní web</title>
-  <meta name="description" content="Osobní stránka ve stylu LinkedIn: profil, projekty, zkušenosti a kontakty." />
+  <title>Faktura – generátor (GitHub Pages, bez serveru)</title>
   <style>
     :root{
-      --bg:#f3f4f6;          /* světlé pozadí */
-      --card:#ffffff;        /* karty */
-      --ink:#0b1324;         /* text */
-      --muted:#6b7280;       /* sekundární text */
-      --brand:#0a66c2;       /* LinkedIn modrá */
-      --ring:rgba(10,102,194,.25);
-      --radius:16px;
-      --shadow:0 10px 25px rgba(0,0,0,.06);
-      --maxw:1024px;
+      --ink:#111;--muted:#666;--border:#e3e6ea;--accent:#0b5cab;--bg:#fafbfc;--card:#fff
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;line-height:1.5}
-    a{color:var(--brand);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
-    header{display:grid;grid-template-columns:96px 1fr;gap:16px;background:linear-gradient(180deg,#dbeafe,transparent);padding:24px;border-radius:var(--radius);box-shadow:var(--shadow)}
-    .avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-    .tag{display:inline-flex;align-items:center;gap:8px;background:#e6f2fb;border:1px solid #cfe6fb;color:#0a4f95;padding:6px 10px;border-radius:999px;font-size:.9rem}
-    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-    .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer;box-shadow:0 6px 16px var(--ring)}
-    .btn.secondary{background:#eef2f7;color:#0a4f95;border:1px solid #d7dee8;box-shadow:none}
-    .grid{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:24px}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
-    .card h2{margin:0 0 12px;font-size:1.25rem}
-    .list{display:grid;gap:16px}
-    .item{display:grid;grid-template-columns:auto 1fr;gap:14px}
-    .bullet{width:12px;height:12px;border-radius:3px;margin-top:6px;background:var(--brand)}
-    .muted{color:var(--muted)}
-    .pill{display:inline-block;background:#f1f5f9;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;margin:4px 6px 0 0;font-size:.9rem}
-    .projects{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-    .project{grid-column:span 6;background:var(--card);border-radius:12px;border:1px solid #eef2f7;padding:16px;transition:transform .15s ease,box-shadow .15s ease}
-    .project:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.08)}
-    .project h3{margin:0 0 8px;font-size:1.05rem}
-    .project p{margin:0 0 10px;color:var(--muted)}
-    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-    .badge{border:1px solid #e5e7eb;border-radius:999px;padding:4px 8px;font-size:.85rem;}
-    footer{margin:24px 0;color:var(--muted);text-align:center}
-    /* responsivita */
-    @media (max-width:960px){.grid{grid-template-columns:1fr}.project{grid-column:span 12}}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    h1{font-size:22px;margin:0 0 8px}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+    .card .hd{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.02em}
+    .card .bd{padding:14px 16px}
+    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+    input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font:inherit}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .btnbar{display:flex;gap:10px;flex-wrap:wrap}
+
+    /* --- Faktura layout --- */
+    .sheet{max-width:800px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .brand h2{margin:0;font-size:20px;letter-spacing:.02em}
+    .badge{display:inline-block;background:rgba(11,92,171,.08);color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px}
+    .meta{ text-align:right }
+    .meta div{font-size:12px;color:var(--muted)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:22px 28px}
+    .ibox{border:1px solid var(--border);border-radius:10px;padding:16px;background:#fff}
+    .ibox h3{margin:0 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+    .ibox p{margin:0;font-size:14px}
+    .items{padding:0 28px 8px 28px}
+    .rowitem{border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;background:#fff}
+    .note{color:var(--muted);font-size:13px}
+    footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+    .qrimg{margin-top:6px;max-width:160px;display:inline-block}
+
+    @media print{
+      body{background:#fff}
+      .wrap{display:none}
+      .sheet{margin:0;border:none;border-radius:0;box-shadow:none;}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- HLAVIČKA JAKO LINKEDIN PROFIL -->
-    <header>
-      <img class="avatar" src="vaclav.png" alt="Profilová fotka" />
-      <div>
-        <h1 style="margin:0 0 4px">Václav Šmíro</h1>
-        <div class="muted" style="margin-bottom:10px">Data Analyst • Asset Pricing • Python/R • Prague</div>
-        <div class="actions">
-          <a class="btn" href="#kontakt">Kontakt</a>
-          <a class="btn secondary" href="CV.pdf" target="_blank" rel="noopener">Stáhnout CV (PDF)</a>
-          <a class="btn secondary" href="https://github.com/smirovaclav" target="_blank" rel="noopener">GitHub</a>
-          <a class="btn secondary" href="https://cz.linkedin.com/in/v%C3%A1clav-%C5%A1m%C3%ADro-b41424155" target="_blank" rel="noopener">LinkedIn</a>
+    <h1>Faktura – generátor (statická stránka)</h1>
+    <div class="sub">Vyplňte údaje v levém panelu. Kliknutím na <strong>Vygenerovat PDF</strong> se náhled faktury převede do PDF (lokálně v prohlížeči, bez serveru).</div>
+    <div class="grid">
+      <form id="frm" class="card" onsubmit="return false;">
+        <div class="hd">Vstupní údaje</div>
+        <div class="bd">
+          <label>Číslo faktury</label>
+          <input id="invNumber" value="2025-001" />
+          <div class="row">
+            <div>
+              <label>Datum vystavení</label>
+              <input id="issueDate" type="date" />
+            </div>
+            <div>
+              <label>Datum splatnosti</label>
+              <input id="dueDate" type="date" />
+            </div>
+          </div>
+
+          <label>Režim DPH</label>
+          <select id="vatMode">
+            <option value="nonpayer">Neplátce DPH</option>
+            <option value="payer">Plátce DPH</option>
+          </select>
+
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Částka celkem (Kč)</label>
+              <input id="amount" type="number" step="0.01" value="3400" />
+            </div>
+            <div>
+              <label>Variabilní symbol</label>
+              <input id="vs" value="2025001" />
+            </div>
+          </div>
+
+          <div class="hd" style="margin:14px -16px 10px">Vystavitel (dodavatel)</div>
+          <label>Název / jméno</label>
+          <input id="supName" value="Václav Šmíro" />
+          <label>Adresa (na řádky)</label>
+          <textarea id="supAddr" rows="2">Čížkov 87, 335 64 Čížkov</textarea>
+          <div class="row">
+            <div>
+              <label>IČ</label>
+              <input id="supIC" value="22303251" />
+            </div>
+            <div>
+              <label>DIČ (volit.)</label>
+              <input id="supDIC" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Číslo účtu</label>
+              <input id="accNumber" value="222785210" />
+            </div>
+            <div>
+              <label>Kód banky</label>
+              <input id="bankCode" value="0600" />
+            </div>
+          </div>
+
+          <div class="hd" style="margin:14px -16px 10px">Příjemce (odběratel)</div>
+          <label>Název</label>
+          <input id="cliName" value="Liberální institut, z.ú." />
+          <label>Adresa (na řádky)</label>
+          <textarea id="cliAddr" rows="2">Jungmannova 26/15, 110 00 Praha 1 – Nové Město</textarea>
+          <div class="row">
+            <div>
+              <label>IČ</label>
+              <input id="cliIC" value="21646597" />
+            </div>
+            <div>
+              <label>DIČ (volit.)</label>
+              <input id="cliDIC" />
+            </div>
+          </div>
+
+          <label>Položka / popis</label>
+          <input id="itemName" value="Publikace „Den daňové svobody“" />
+
+          <div class="btnbar" style="margin-top:14px">
+            <button class="btn" id="btnPreview">Aktualizovat náhled</button>
+            <button class="btn primary" id="btnPdf">Vygenerovat PDF</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- NÁHLED FAKTURY -->
+      <div class="card">
+        <div class="hd">Náhled</div>
+        <div class="bd">
+          <div id="invoice" class="sheet">
+            <header>
+              <div class="brand">
+                <h2 id="hInv">Faktura č. 2025-001</h2>
+                <div id="badge" class="badge">Neplátce DPH</div>
+              </div>
+              <div class="meta">
+                <div>Datum vystavení: <strong id="hIssue">—</strong></div>
+                <div>Datum splatnosti: <strong id="hDue">—</strong></div>
+              </div>
+            </header>
+
+            <section class="grid2">
+              <div class="ibox">
+                <h3>Vystavitel (dodavatel)</h3>
+                <p><strong id="hSupName">—</strong><br><span id="hSupAddr">—</span><br>
+                   IČ: <span id="hSupIC">—</span><span id="hSupDICWrap"> | DIČ: <span id="hSupDIC">—</span></span>
+                </p>
+              </div>
+              <div class="ibox">
+                <h3>Příjemce (odběratel)</h3>
+                <p><strong id="hCliName">—</strong><br><span id="hCliAddr">—</span><br>
+                   IČ: <span id="hCliIC">—</span><span id="hCliDICWrap"> | DIČ: <span id="hCliDIC">—</span></span>
+                </p>
+              </div>
+            </section>
+
+            <section class="items">
+              <div class="rowitem">
+                <div>
+                  <div class="note">Položka:</div>
+                  <strong id="hItem">—</strong>
+                </div>
+                <div style="text-align:right">
+                  <div class="note">Celkem k úhradě:</div>
+                  <strong id="hTotal" style="font-size:16px">—</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="grid2" style="padding-top:0;align-items:center">
+              <div class="ibox">
+                <h3>Platební údaje</h3>
+                <p>Bankovní účet: <strong><span id="hAcc">—</span>/<span id="hBank">—</span></strong><br>
+                   Variabilní symbol: <strong id="hVS">—</strong><br>
+                   Způsob úhrady: bankovní převod
+                </p>
+              </div>
+              <div style="text-align:right">
+                <img id="qr" class="qrimg" alt="QR Platba" width="180" height="180" />
+              </div>
+            </section>
+
+            <footer>
+              <div id="footNote">Pozn.: Nejsem plátce DPH.</div>
+              <div>Kontakt: <span id="hContact">—</span></div>
+            </footer>
+          </div>
         </div>
       </div>
-    </header>
-
-    <div class="grid">
-      <main class="card">
-        <h2>O mně</h2>
-        <p>Krátké představení (2–4 věty): něco si sem prostě napiš Václave. Ich steh voll auf Vanilleeis.</p>
-
-        <h2>Projekty</h2>
-        <section class="projects">
-                    <!-- PROJEKT 1 -->
-          <article class="project">
-            <h3><a href="https://libinst.cz/den-danove-svobody-2025/" target="_blank" rel="noopener">Tax Freedom Day – CZ</a></h3>
-            <p>Analýza Dne daňové svobody, daňového břemene a veřejných financí: Eurostat, OECD, MoF.</p>
-            <div class="badges"><span class="badge">Excel</span><span class="badge">Analysis</span><span class="badge">ETL</span></div>
-          </article>
-          <!-- PROJEKT 2 -->
-          <article class="project">
-            <h3><a href="chance_liga_paper.pdf" target="_blank" rel="noopener">Czech Football Attendance – Panel Data</a></h3>
-            <p>Panelová ekonometrie návštěvnosti: scraping, Meteostat počasí, FE/RE modely, vizualizace.</p>
-            <div class="badges">
-              <span class="badge">Python</span><span class="badge">Pandas</span><span class="badge">PanelOLS</span><span class="badge">MPL</span>
-            </div>
-          </article>
-          <!-- PROJEKT 3 -->
-          <article class="project">
-            <h3><a href="HW3 Paper.pdf" target="_blank" rel="noopener">Asset Pricing</a></h3>
-            <p>FF‑Carhart‑Pastor‑Stambaugh replikace, univariate/bivariate sorts, Fama‑MacBeth regrese.</p>
-            <div class="badges">
-              <span class="badge">R</span><span class="badge">tidyverse</span><span class="badge">stargazer</span>
-            </div>
-          </article>
-        </section>
-
-        <h2>Zkušenosti</h2>
-        <div class="list">
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>Datový analytik – Liberal Institut</strong>
-              <div class="muted">03/2025 – současnost • Praha • project-based</div>
-              <div>Makro a veřejné finance, analýza dat, datové vizualizace.</div>
-            </div>
-          </div>
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>Výzkumný projekt – IES FSV UK</strong>
-              <div class="muted">02/2024 – 06/2024 • Praha</div>
-              <div>Empirické asset‑pricing modely, portfolio sorts, Fama‑MacBeth.</div>
-            </div>
-          </div>
-        </div>
-
-        <h2>Vzdělání</h2>
-        <div class="list">
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>RWTH Aaachen University – Business Administration (Exchange program)</strong>
-              <div class="muted">2025</div>
-            </div>
-          </div>
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>IES FSV UK – Economics and Finance / Central banking and financial regulations (Mgr.)</strong>
-              <div class="muted">2023 – 2026</div>
-            </div>
-          </div>
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>VŠE – Economic Policy / Data Engineering (Ing.)</strong>
-              <div class="muted">2024 – 2026</div>
-            </div>
-          </div>
-          <div class="item">
-            <div class="bullet"></div>
-            <div>
-              <strong>VŠE – National Economics (Bc.)</strong>
-              <div class="muted">2020 – 2023</div>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <aside class="card">
-        <h2>Dovednosti</h2>
-        <div>
-          <span class="pill">Python</span>
-          <span class="pill">R</span>
-          <span class="pill">SQL</span>
-          <span class="pill">Econometrics</span>
-          <span class="pill">Git</span>
-          <span class="pill">LaTeX</span>
-        </div>
-
-        <h2 style="margin-top:18px">Certifikace</h2>
-        <ul>
-          <li>Google Data Analytics (2024)</li>
-          <li>....</li>
-        </ul>
-
-        <h2 id="kontakt" style="margin-top:18px">Kontakt</h2>
-        <p class="muted">Preferujte LinkedIn nebo e‑mail.</p>
-        <p>✉️ <a href="mailto:vaclavsmiro@proton.me">vaclavsmiro@proton.me</a><br/>
-           🌐 <a href="https://github.com/smirovaclav" target="_blank" rel="noopener">smirovaclav.github.io</a>
-        </p>
-      </aside>
     </div>
-
-    <footer>
-      © <span id="y"></span> Václav Šmíro • Poslední aktualizace: <span id="d"></span>
-    </footer>
   </div>
 
+  <!-- html2pdf.js (html2canvas + jsPDF) z CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPa+T7QwG2Kxwz9DXq5+Kjw1hPx8r2i3qJt8YF2HqJ3V2Xk3e4z3dQh0B9Q6f5G2xYb8S0U3x7yR5QJQf0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    const now = new Date();
-    document.getElementById('y').textContent = now.getFullYear();
-    document.getElementById('d').textContent = now.toLocaleDateString('cs-CZ');
+    const fmtCZK = (n)=> new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:2}).format(+n||0)
+    const el = (id)=> document.getElementById(id)
+
+    // Předvyplnit dnešní datum a +8 dní splatnost
+    const today = new Date();
+    const pad = (x)=> String(x).padStart(2,'0')
+    const dISO = (d)=> `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+    el('issueDate').value = dISO(today)
+    const due = new Date(today); due.setDate(due.getDate()+8); el('dueDate').value = dISO(due)
+
+    function buildQR(){
+      const base = 'https://api.paylibo.com/paylibo/generator/czech/image'
+      const p = new URLSearchParams({
+        accountNumber: el('accNumber').value.trim() || '0',
+        bankCode: el('bankCode').value.trim() || '0000',
+        amount: (Number(el('amount').value)||0).toFixed(2),
+        currency: 'CZK',
+        vs: el('vs').value.trim(),
+        message: `Faktura ${el('invNumber').value.trim()}`
+      })
+      return `${base}?${p.toString()}`
+    }
+
+    function updatePreview(){
+      // Header
+      el('hInv').textContent = `Faktura č. ${el('invNumber').value || '—'}`
+      el('hIssue').textContent = el('issueDate').value || '—'
+      el('hDue').textContent = el('dueDate').value || '—'
+
+      // VAT badge & footer note
+      const vat = el('vatMode').value
+      if(vat === 'nonpayer'){
+        el('badge').textContent = 'Neplátce DPH'
+        el('footNote').textContent = 'Pozn.: Nejsem plátce DPH.'
+      } else {
+        el('badge').textContent = 'Plátce DPH'
+        el('footNote').textContent = 'Pozn.: Ceny jsou bez DPH / nebo doplňte sazbu.'
+      }
+
+      // Parties
+      el('hSupName').textContent = el('supName').value || '—'
+      el('hSupAddr').textContent = (el('supAddr').value||'').replaceAll('\n','<br>')
+      el('hSupAddr').innerHTML = el('hSupAddr').textContent.includes('<br>') ? (el('supAddr').value||'').replaceAll('\n','<br>') : el('supAddr').value
+      el('hSupIC').textContent = el('supIC').value || '—'
+      const sd = el('supDIC').value.trim()
+      el('hSupDICWrap').style.display = sd ? 'inline' : 'none'
+      el('hSupDIC').textContent = sd
+
+      el('hCliName').textContent = el('cliName').value || '—'
+      el('hCliAddr').textContent = (el('cliAddr').value||'').replaceAll('\n','<br>')
+      el('hCliAddr').innerHTML = el('hCliAddr').textContent.includes('<br>') ? (el('cliAddr').value||'').replaceAll('\n','<br>') : el('cliAddr').value
+      el('hCliIC').textContent = el('cliIC').value || '—'
+      const cd = el('cliDIC').value.trim()
+      el('hCliDICWrap').style.display = cd ? 'inline' : 'none'
+      el('hCliDIC').textContent = cd
+
+      // Items & totals
+      el('hItem').textContent = el('itemName').value || '—'
+      el('hTotal').textContent = fmtCZK(el('amount').value)
+
+      // Payment
+      el('hAcc').textContent = el('accNumber').value || '—'
+      el('hBank').textContent = el('bankCode').value || '—'
+      el('hVS').textContent = el('vs').value || '—'
+
+      // QR
+      el('qr').src = buildQR()
+
+      // Contact (vezmeme jméno jako placeholder e-mailu, můžete upravit)
+      el('hContact').textContent = 'vaclavsmiro@proton.me'
+    }
+
+    function makePDF(){
+      // Nastavení okrajů a velikosti odpovídající A4
+      const opt = {
+        margin: [10,10,10,10],
+        filename: `faktura-${(el('invNumber').value||'').replace(/\s+/g,'_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }
+      const src = document.getElementById('invoice')
+      html2pdf().set(opt).from(src).save()
+    }
+
+    document.getElementById('btnPreview').addEventListener('click', updatePreview)
+    document.getElementById('btnPdf').addEventListener('click', ()=>{ updatePreview(); makePDF(); })
+
+    // První načtení
+    updatePreview()
   </script>
 </body>
 </html>
