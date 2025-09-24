@@ -3,301 +3,500 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Faktura – generátor (GitHub Pages, bez serveru)</title>
+  <title>Generátor faktur (GitHub Pages)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --ink:#111;--muted:#666;--border:#e3e6ea;--accent:#0b5cab;--bg:#fafbfc;--card:#fff
+      --ink:#111; --muted:#6b7280; --border:#e5e7eb; --accent:#0b5cab; --bg:#f7fafc;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif}
-    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    h1{font-size:22px;margin:0 0 8px}
-    .sub{color:var(--muted);margin-bottom:18px}
-    .grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
-    .card .hd{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.02em}
-    .card .bd{padding:14px 16px}
-    label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+    .wrap{display:grid;grid-template-columns:340px 1fr;gap:20px;max-width:1100px;margin:24px auto;padding:0 16px}
+    .panel{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.04)}
+    .panel h2{margin:0;padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .panel .body{padding:14px 16px}
+    label{display:block;font-size:12px;color:var(--muted);margin:.5rem 0 .25rem}
     input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;font:inherit}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-    .btnbar{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#111}
+    .items-table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .items-table th{font-size:12px;color:var(--muted);text-align:left;padding:6px 8px}
+    .items-table td{background:#fff;border:1px solid var(--border);padding:8px;border-radius:10px}
 
-    /* --- Faktura layout --- */
-    .sheet{max-width:800px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-    header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-    .brand h2{margin:0;font-size:20px;letter-spacing:.02em}
+    /* ===== INVOICE SHEET ===== */
+    .sheet{max-width:800px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.06);overflow:hidden}
+    header{padding:24px 28px;border-bottom:1px solid var(--border);background:#fff}
+    .head-grid{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+    .logo-slot{width:160px;height:80px;border:2px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .logo-slot img{max-width:100%;max-height:100%;object-fit:contain}
+    .brand h1{margin:8px 0 0 0;font-size:22px;letter-spacing:.02em}
     .badge{display:inline-block;background:rgba(11,92,171,.08);color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px}
-    .meta{ text-align:right }
+    .meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:14px}
     .meta div{font-size:12px;color:var(--muted)}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:22px 28px}
-    .ibox{border:1px solid var(--border);border-radius:10px;padding:16px;background:#fff}
-    .ibox h3{margin:0 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-    .ibox p{margin:0;font-size:14px}
-    .items{padding:0 28px 8px 28px}
-    .rowitem{border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;background:#fff}
-    .note{color:var(--muted);font-size:13px}
-    footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:22px 28px}
+    .card{border:1px solid var(--border);border-radius:10px;padding:16px;background:#fff}
+    .card h3{margin:0 0 8px 0;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+    .card p{margin:0;font-size:14px}
+
+    .items{padding:0 28px 8px 28px;display:grid;gap:8px}
+    .row-item{border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:1fr 120px 140px 160px;gap:12px;align-items:center}
+    .row-item .note{color:var(--muted);font-size:12px}
+    .total-box{margin:8px 28px 12px 28px;display:flex;justify-content:flex-end}
+    .total-card{min-width:260px;border:2px solid var(--border);border-radius:12px;padding:12px 14px;background:#fff}
+    .total-card .label{font-size:12px;color:var(--muted)}
+    .total-card .value{font-size:18px;font-weight:700}
+
+    footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:#fff}
     .qrimg{margin-top:6px;max-width:160px;display:inline-block}
 
     @media print{
       body{background:#fff}
-      .wrap{display:none}
-      .sheet{margin:0;border:none;border-radius:0;box-shadow:none;}
+      .wrap{display:block}
+      .panel{display:none}
+      .sheet{margin:0;border:none;box-shadow:none;border-radius:0;width:100%;max-width:none}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Faktura – generátor (statická stránka)</h1>
-    <div class="sub">Vyplňte údaje v levém panelu. Kliknutím na <strong>Vygenerovat PDF</strong> se náhled faktury převede do PDF (lokálně v prohlížeči, bez serveru).</div>
-    <div class="grid">
-      <form id="frm" class="card" onsubmit="return false;">
-        <div class="hd">Vstupní údaje</div>
-        <div class="bd">
-          <label>Číslo faktury</label>
-          <input id="invNumber" value="2025-001" />
-          <div class="row">
-            <div>
-              <label>Datum vystavení</label>
-              <input id="issueDate" type="date" />
-            </div>
-            <div>
-              <label>Datum splatnosti</label>
-              <input id="dueDate" type="date" />
-            </div>
+    <!-- ===== LEFT CONTROL PANEL ===== -->
+    <div class="panel">
+      <h2>Vstupní údaje</h2>
+      <div class="body">
+        <label>Logo (PNG/JPG)</label>
+        <input type="file" id="logoInput" accept="image/*" />
+        <div class="row">
+          <div>
+            <label>Číslo faktury</label>
+            <input id="invNumber" value="2025-001" />
           </div>
-
-          <label>Režim DPH</label>
-          <select id="vatMode">
-            <option value="nonpayer">Neplátce DPH</option>
-            <option value="payer">Plátce DPH</option>
-          </select>
-
-          <div class="row" style="margin-top:8px">
-            <div>
-              <label>Částka celkem (Kč)</label>
-              <input id="amount" type="number" step="0.01" value="3400" />
-            </div>
-            <div>
-              <label>Variabilní symbol</label>
-              <input id="vs" value="2025001" />
-            </div>
-          </div>
-
-          <div class="hd" style="margin:14px -16px 10px">Vystavitel (dodavatel)</div>
-          <label>Název / jméno</label>
-          <input id="supName" value="Václav Šmíro" />
-          <label>Adresa (na řádky)</label>
-          <textarea id="supAddr" rows="2">Čížkov 87, 335 64 Čížkov</textarea>
-          <div class="row">
-            <div>
-              <label>IČ</label>
-              <input id="supIC" value="22303251" />
-            </div>
-            <div>
-              <label>DIČ (volit.)</label>
-              <input id="supDIC" />
-            </div>
-          </div>
-          <div class="row">
-            <div>
-              <label>Číslo účtu</label>
-              <input id="accNumber" value="222785210" />
-            </div>
-            <div>
-              <label>Kód banky</label>
-              <input id="bankCode" value="0600" />
-            </div>
-          </div>
-
-          <div class="hd" style="margin:14px -16px 10px">Příjemce (odběratel)</div>
-          <label>Název</label>
-          <input id="cliName" value="Liberální institut, z.ú." />
-          <label>Adresa (na řádky)</label>
-          <textarea id="cliAddr" rows="2">Jungmannova 26/15, 110 00 Praha 1 – Nové Město</textarea>
-          <div class="row">
-            <div>
-              <label>IČ</label>
-              <input id="cliIC" value="21646597" />
-            </div>
-            <div>
-              <label>DIČ (volit.)</label>
-              <input id="cliDIC" />
-            </div>
-          </div>
-
-          <label>Položka / popis</label>
-          <input id="itemName" value="Publikace „Den daňové svobody“" />
-
-          <div class="btnbar" style="margin-top:14px">
-            <button class="btn" id="btnPreview">Aktualizovat náhled</button>
-            <button class="btn primary" id="btnPdf">Vygenerovat PDF</button>
+          <div>
+            <label>Neplátce DPH</label>
+            <select id="vatBadge">
+              <option value="true" selected>Ano</option>
+              <option value="false">Ne</option>
+            </select>
           </div>
         </div>
-      </form>
 
-      <!-- NÁHLED FAKTURY -->
-      <div class="card">
-        <div class="hd">Náhled</div>
-        <div class="bd">
-          <div id="invoice" class="sheet">
-            <header>
-              <div class="brand">
-                <h2 id="hInv">Faktura č. 2025-001</h2>
-                <div id="badge" class="badge">Neplátce DPH</div>
-              </div>
-              <div class="meta">
-                <div>Datum vystavení: <strong id="hIssue">—</strong></div>
-                <div>Datum splatnosti: <strong id="hDue">—</strong></div>
-              </div>
-            </header>
-
-            <section class="grid2">
-              <div class="ibox">
-                <h3>Vystavitel (dodavatel)</h3>
-                <p><strong id="hSupName">—</strong><br><span id="hSupAddr">—</span><br>
-                   IČ: <span id="hSupIC">—</span><span id="hSupDICWrap"> | DIČ: <span id="hSupDIC">—</span></span>
-                </p>
-              </div>
-              <div class="ibox">
-                <h3>Příjemce (odběratel)</h3>
-                <p><strong id="hCliName">—</strong><br><span id="hCliAddr">—</span><br>
-                   IČ: <span id="hCliIC">—</span><span id="hCliDICWrap"> | DIČ: <span id="hCliDIC">—</span></span>
-                </p>
-              </div>
-            </section>
-
-            <section class="items">
-              <div class="rowitem">
-                <div>
-                  <div class="note">Položka:</div>
-                  <strong id="hItem">—</strong>
-                </div>
-                <div style="text-align:right">
-                  <div class="note">Celkem k úhradě:</div>
-                  <strong id="hTotal" style="font-size:16px">—</strong>
-                </div>
-              </div>
-            </section>
-
-            <section class="grid2" style="padding-top:0;align-items:center">
-              <div class="ibox">
-                <h3>Platební údaje</h3>
-                <p>Bankovní účet: <strong><span id="hAcc">—</span>/<span id="hBank">—</span></strong><br>
-                   Variabilní symbol: <strong id="hVS">—</strong><br>
-                   Způsob úhrady: bankovní převod
-                </p>
-              </div>
-              <div style="text-align:right">
-                <img id="qr" class="qrimg" alt="QR Platba" width="180" height="180" />
-              </div>
-            </section>
-
-            <footer>
-              <div id="footNote">Pozn.: Nejsem plátce DPH.</div>
-              <div>Kontakt: <span id="hContact">—</span></div>
-            </footer>
+        <div class="row">
+          <div>
+            <label>Datum vystavení</label>
+            <input id="issueDate" type="date" />
           </div>
+          <div>
+            <label>Datum splatnosti</label>
+            <input id="dueDate" type="date" />
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px">Vystavitel</h3>
+        <label>Název / jméno</label>
+        <input id="supName" value="Jan Dvořák" />
+        <label>Adresa</label>
+        <textarea id="supAddr" rows="2">Křižíkova 12, 186 00 Praha 8</textarea>
+        <div class="row">
+          <div>
+            <label>IČ</label>
+            <input id="supIC" value="12345678" />
+          </div>
+          <div>
+            <label>DIČ (volitelné)</label>
+            <input id="supDIC" placeholder="CZ12345678" />
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px">Příjemce</h3>
+        <label>Název / jméno</label>
+        <input id="cliName" value="Alfa Beta, s.r.o." />
+        <label>Adresa</label>
+        <textarea id="cliAddr" rows="2">Jungmannova 26/15, 110 00 Praha 1</textarea>
+        <div class="row">
+          <div>
+            <label>IČ</label>
+            <input id="cliIC" value="87654321" />
+          </div>
+          <div>
+            <label>DIČ (volitelné)</label>
+            <input id="cliDIC" placeholder="CZ87654321" />
+          </div>
+        </div>
+
+        <h3 style="margin-top:16px">Položky</h3>
+        <table class="items-table" id="itemsTable">
+          <thead>
+            <tr>
+              <th>Popis</th>
+              <th>Počet ks</th>
+              <th>Cena/ks (Kč)</th>
+              <th>Mezisoučet</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="addItem">+ Přidat položku</button>
+          <button class="btn secondary" id="recalc">Přepočítat</button>
+        </div>
+
+        <h3 style="margin-top:16px">Platba</h3>
+        <div class="row">
+          <div>
+            <label>Číslo účtu</label>
+            <input id="accNumber" value="222785210" />
+          </div>
+          <div>
+            <label>Kód banky</label>
+            <input id="bankCode" value="0600" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Variabilní symbol</label>
+            <input id="vs" value="2025001" />
+          </div>
+          <div>
+            <label>Měna</label>
+            <input id="currency" value="CZK" />
+          </div>
+        </div>
+        <label>Zpráva pro příjemce</label>
+        <input id="payMsg" value="Faktura 2025-001" />
+
+        <h3 style="margin-top:16px">Kontakt ve footeru</h3>
+        <div class="row">
+          <div>
+            <label>Telefon</label>
+            <input id="phone" value="+420 777 123 456" />
+          </div>
+          <div>
+            <label>Email</label>
+            <input id="email" value="jan.dvorak@example.com" />
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn" id="makePdf">Vygenerovat PDF</button>
+          <button class="btn secondary" id="updatePreview">Aktualizovat náhled</button>
+        </div>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px">Pozn.: GitHub Pages je statický – PDF se tvoří v prohlížeči (html2pdf). Pokud chcete zachovat Python/WeasyPrint backend, níže v komentářích kódu jsou instrukce k nasazení API a napojení.</p>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PREVIEW (PRINT AREA) ===== -->
+    <div class="panel">
+      <h2>Náhled faktury</h2>
+      <div class="body">
+        <div id="invoice" class="sheet">
+          <header>
+            <div class="head-grid">
+              <div>
+                <div class="logo-slot" id="logoSlot"><span>Logo</span></div>
+                <div class="brand">
+                  <h1 id="invTitle">Faktura č. 2025-001</h1>
+                  <span id="vatBadgeView" class="badge">Neplátce DPH</span>
+                </div>
+                <div class="meta" id="metaDates">
+                  <!-- dates injected here -->
+                </div>
+              </div>
+              <div id="qrWrap" style="text-align:right">
+                <img id="qrImg" class="qrimg" alt="QR Platba" />
+              </div>
+            </div>
+          </header>
+
+          <section class="grid">
+            <div class="card">
+              <h3>Vystavitel (dodavatel)</h3>
+              <p id="supBlock"></p>
+            </div>
+            <div class="card">
+              <h3>Příjemce (odběratel)</h3>
+              <p id="cliBlock"></p>
+            </div>
+          </section>
+
+          <section class="items" id="itemsPreview"></section>
+
+          <div class="total-box">
+            <div class="total-card">
+              <div class="label">Cena celkem k úhradě</div>
+              <div class="value" id="grandTotal">0 Kč</div>
+            </div>
+          </div>
+
+          <section class="grid" style="padding-top:0;align-items:center">
+            <div class="card">
+              <h3>Platební údaje</h3>
+              <p id="payBlock"></p>
+            </div>
+            <!-- QR je výše v headeru vpravo -->
+          </section>
+
+          <footer>
+            <div id="leftFoot">Telefon: +420 777 123 456</div>
+            <div id="rightFoot">Email: jan.dvorak@example.com</div>
+          </footer>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- html2pdf.js (html2canvas + jsPDF) z CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPa+T7QwG2Kxwz9DXq5+Kjw1hPx8r2i3qJt8YF2HqJ3V2Xk3e4z3dQh0B9Q6f5G2xYb8S0U3x7yR5QJQf0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- html2pdf for client-side PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" integrity="sha512-YcsIP6v+1zqO6i3v0kW4oY6yA5l3cC6wG9f4l3Czq2Wk0o3KZDLf5qG8V+8lYwM0m3M3o3n4Q2U4l1bJvC8xwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    const fmtCZK = (n)=> new Intl.NumberFormat('cs-CZ',{style:'currency',currency:'CZK',maximumFractionDigits:2}).format(+n||0)
-    const el = (id)=> document.getElementById(id)
-
-    // Předvyplnit dnešní datum a +8 dní splatnost
-    const today = new Date();
-    const pad = (x)=> String(x).padStart(2,'0')
-    const dISO = (d)=> `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
-    el('issueDate').value = dISO(today)
-    const due = new Date(today); due.setDate(due.getDate()+8); el('dueDate').value = dISO(due)
-
-    function buildQR(){
-      const base = 'https://api.paylibo.com/paylibo/generator/czech/image'
-      const p = new URLSearchParams({
-        accountNumber: el('accNumber').value.trim() || '0',
-        bankCode: el('bankCode').value.trim() || '0000',
-        amount: (Number(el('amount').value)||0).toFixed(2),
-        currency: 'CZK',
-        vs: el('vs').value.trim(),
-        message: `Faktura ${el('invNumber').value.trim()}`
-      })
-      return `${base}?${p.toString()}`
+    // ===== Helpers =====
+    const fmtCZK = (num)=> new Intl.NumberFormat('cs-CZ', {style:'currency', currency:'CZK'}).format(num);
+    const fmtDateCZ = (v)=>{
+      if(!v) return '';
+      const d = (v instanceof Date) ? v : new Date(v);
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
     }
 
-    function updatePreview(){
-      // Header
-      el('hInv').textContent = `Faktura č. ${el('invNumber').value || '—'}`
-      el('hIssue').textContent = el('issueDate').value || '—'
-      el('hDue').textContent = el('dueDate').value || '—'
+    function todayISO(){
+      const d = new Date();
+      const tzOffset = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - tzOffset*60000);
+      return local.toISOString().slice(0,10); // YYYY-MM-DD for <input type="date">
+    }
 
-      // VAT badge & footer note
-      const vat = el('vatMode').value
-      if(vat === 'nonpayer'){
-        el('badge').textContent = 'Neplátce DPH'
-        el('footNote').textContent = 'Pozn.: Nejsem plátce DPH.'
-      } else {
-        el('badge').textContent = 'Plátce DPH'
-        el('footNote').textContent = 'Pozn.: Ceny jsou bez DPH / nebo doplňte sazbu.'
+    // ===== Items dynamic table =====
+    const items = [
+      { desc: 'Datová analýza – konzultace', qty: 4, unit: 850 },
+      { desc: 'Zpracování reportu', qty: 2, unit: 925 }
+    ];
+
+    function renderItemsEditor(){
+      const body = document.getElementById('itemsBody');
+      body.innerHTML = '';
+      items.forEach((it, idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input value="${it.desc}" data-i="${idx}" data-k="desc"/></td>
+          <td style="width:110px"><input type="number" min="0" step="1" value="${it.qty}" data-i="${idx}" data-k="qty"/></td>
+          <td style="width:140px"><input type="number" min="0" step="0.01" value="${it.unit}" data-i="${idx}" data-k="unit"/></td>
+          <td style="width:160px"><input value="${fmtCZK(it.qty*it.unit)}" disabled/></td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function addItem(){ items.push({desc:'Nová položka', qty:1, unit:1000}); renderItemsEditor(); updateAll(); }
+
+    function hookItemInputs(){
+      document.getElementById('itemsBody').addEventListener('input', (e)=>{
+        const i = +e.target.dataset.i; const k = e.target.dataset.k;
+        if(k){
+          let v = e.target.value;
+          if(k!=='desc') v = parseFloat(v || 0);
+          items[i][k] = v;
+          updateAll();
+        }
+      });
+    }
+
+    function calcTotal(){ return items.reduce((s,it)=> s + (Number(it.qty)||0)*(Number(it.unit)||0), 0); }
+
+    function renderItemsPreview(){
+      const wrap = document.getElementById('itemsPreview');
+      wrap.innerHTML = '';
+      items.forEach(it=>{
+        const row = document.createElement('div');
+        row.className = 'row-item';
+        row.innerHTML = `
+          <div>
+            <div class="note">Položka</div>
+            <strong>${it.desc || ''}</strong>
+          </div>
+          <div style="text-align:right">
+            <div class="note">Počet ks</div>
+            <strong>${Number(it.qty)||0}</strong>
+          </div>
+          <div style="text-align:right">
+            <div class="note">Cena/ks</div>
+            <strong>${fmtCZK(Number(it.unit)||0)}</strong>
+          </div>
+          <div style="text-align:right">
+            <div class="note">Mezisoučet</div>
+            <strong>${fmtCZK((Number(it.qty)||0)*(Number(it.unit)||0))}</strong>
+          </div>`;
+        wrap.appendChild(row);
+      });
+    }
+
+    // ===== QR generator (Paylibo) =====
+    async function buildQR(total){
+      const acc = document.getElementById('accNumber').value.trim();
+      const bank = document.getElementById('bankCode').value.trim();
+      const currency = document.getElementById('currency').value.trim() || 'CZK';
+      const vs = document.getElementById('vs').value.trim();
+      const msg = document.getElementById('payMsg').value.trim();
+
+      const params = new URLSearchParams({
+        accountNumber: acc,
+        bankCode: bank,
+        amount: total.toFixed(2),
+        currency,
+        vs,
+        message: msg
+      });
+      const url = `https://api.paylibo.com/paylibo/generator/czech/image?${params.toString()}`;
+
+      // Try fetch to embed as data URL (avoids CORS issues on PDF canvas)
+      try{
+        const res = await fetch(url, {mode:'cors'});
+        const blob = await res.blob();
+        const reader = new FileReader();
+        const p = new Promise(ok=>{ reader.onload = ()=> ok(reader.result); });
+        reader.readAsDataURL(blob);
+        const dataUrl = await p;
+        document.getElementById('qrImg').src = dataUrl;
+      }catch(err){
+        // Fallback: direct URL
+        document.getElementById('qrImg').src = url;
       }
+    }
+
+    // ===== Main render =====
+    function updateAll(){
+      // Header title + badge
+      const invNo = document.getElementById('invNumber').value.trim();
+      document.getElementById('invTitle').textContent = `Faktura č. ${invNo || '---'}`;
+      const showBadge = document.getElementById('vatBadge').value === 'true';
+      document.getElementById('vatBadgeView').style.display = showBadge? 'inline-block':'none';
+
+      // Dates (DD.MM.YYYY)
+      const issue = document.getElementById('issueDate').value || todayISO();
+      const due = document.getElementById('dueDate').value;
+      const meta = document.getElementById('metaDates');
+      meta.innerHTML = `
+        <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
+        ${due? `<div>Datum splatnosti: <strong>${fmtDateCZ(due)}</strong></div>`:''}
+      `;
 
       // Parties
-      el('hSupName').textContent = el('supName').value || '—'
-      el('hSupAddr').textContent = (el('supAddr').value||'').replaceAll('\n','<br>')
-      el('hSupAddr').innerHTML = el('hSupAddr').textContent.includes('<br>') ? (el('supAddr').value||'').replaceAll('\n','<br>') : el('supAddr').value
-      el('hSupIC').textContent = el('supIC').value || '—'
-      const sd = el('supDIC').value.trim()
-      el('hSupDICWrap').style.display = sd ? 'inline' : 'none'
-      el('hSupDIC').textContent = sd
+      const sup = {
+        name: document.getElementById('supName').value,
+        addr: document.getElementById('supAddr').value,
+        ic: document.getElementById('supIC').value,
+        dic: document.getElementById('supDIC').value
+      };
+      const cli = {
+        name: document.getElementById('cliName').value,
+        addr: document.getElementById('cliAddr').value,
+        ic: document.getElementById('cliIC').value,
+        dic: document.getElementById('cliDIC').value
+      };
+      document.getElementById('supBlock').innerHTML = `
+        <strong>${sup.name}</strong><br>${sup.addr.replaceAll('\n','<br>')}<br>
+        IČ: ${sup.ic}${sup.dic? `<br>DIČ: ${sup.dic}`:''}`;
+      document.getElementById('cliBlock').innerHTML = `
+        <strong>${cli.name}</strong><br>${cli.addr.replaceAll('\n','<br>')}<br>
+        IČ: ${cli.ic}${cli.dic? `<br>DIČ: ${cli.dic}`:''}`;
 
-      el('hCliName').textContent = el('cliName').value || '—'
-      el('hCliAddr').textContent = (el('cliAddr').value||'').replaceAll('\n','<br>')
-      el('hCliAddr').innerHTML = el('hCliAddr').textContent.includes('<br>') ? (el('cliAddr').value||'').replaceAll('\n','<br>') : el('cliAddr').value
-      el('hCliIC').textContent = el('cliIC').value || '—'
-      const cd = el('cliDIC').value.trim()
-      el('hCliDICWrap').style.display = cd ? 'inline' : 'none'
-      el('hCliDIC').textContent = cd
+      // Items + total
+      renderItemsPreview();
+      const total = calcTotal();
+      document.getElementById('grandTotal').textContent = fmtCZK(total);
 
-      // Items & totals
-      el('hItem').textContent = el('itemName').value || '—'
-      el('hTotal').textContent = fmtCZK(el('amount').value)
+      // Payment block
+      const acc = document.getElementById('accNumber').value.trim();
+      const bank = document.getElementById('bankCode').value.trim();
+      const vs = document.getElementById('vs').value.trim();
+      const currency = document.getElementById('currency').value.trim()||'CZK';
+      document.getElementById('payBlock').innerHTML = `
+        Bankovní účet: <strong>${acc}/${bank}</strong><br>
+        Variabilní symbol: <strong>${vs}</strong><br>
+        Způsob úhrady: bankovní převod`;
 
-      // Payment
-      el('hAcc').textContent = el('accNumber').value || '—'
-      el('hBank').textContent = el('bankCode').value || '—'
-      el('hVS').textContent = el('vs').value || '—'
+      // Footer
+      document.getElementById('leftFoot').textContent = `Telefon: ${document.getElementById('phone').value}`;
+      document.getElementById('rightFoot').textContent = `Email: ${document.getElementById('email').value}`;
 
-      // QR
-      el('qr').src = buildQR()
-
-      // Contact (vezmeme jméno jako placeholder e-mailu, můžete upravit)
-      el('hContact').textContent = 'vaclavsmiro@proton.me'
+      // QR code
+      buildQR(total);
     }
 
-    function makePDF(){
-      // Nastavení okrajů a velikosti odpovídající A4
-      const opt = {
-        margin: [10,10,10,10],
-        filename: `faktura-${(el('invNumber').value||'').replace(/\s+/g,'_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    // ===== Logo upload =====
+    document.getElementById('logoInput').addEventListener('change', (e)=>{
+      const file = e.target.files?.[0];
+      const slot = document.getElementById('logoSlot');
+      if(file){
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          slot.innerHTML = `<img src="${reader.result}" alt="logo"/>`;
+        }
+        reader.readAsDataURL(file);
+      } else {
+        slot.innerHTML = '<span>Logo</span>';
       }
-      const src = document.getElementById('invoice')
-      html2pdf().set(opt).from(src).save()
+    })
+
+    // ===== Buttons =====
+    document.getElementById('addItem').addEventListener('click', (e)=>{ e.preventDefault(); addItem(); });
+    document.getElementById('recalc').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
+    document.getElementById('updatePreview').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
+
+    document.getElementById('makePdf').addEventListener('click', async (e)=>{
+      e.preventDefault();
+      updateAll();
+      const element = document.getElementById('invoice');
+      const fileName = `faktura_${document.getElementById('invNumber').value || 'dokument'}.pdf`;
+      const opt = {
+        margin:       [10, 10], // mm-ish
+        filename:     fileName,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      await html2pdf().set(opt).from(element).save();
+    });
+
+    // ===== Init =====
+    function init(){
+      document.getElementById('issueDate').value = todayISO();
+      renderItemsEditor();
+      hookItemInputs();
+      updateAll();
     }
-
-    document.getElementById('btnPreview').addEventListener('click', updatePreview)
-    document.getElementById('btnPdf').addEventListener('click', ()=>{ updatePreview(); makePDF(); })
-
-    // První načtení
-    updatePreview()
+    init();
   </script>
+
+  <!-- =====================
+    Backend (volitelné): Pokud chcete PŮVODNÍ PYTHON + WEASYPRINT
+    1) Vytvořte miniaturní Flask API (Render/Fly.io/Railway):
+
+    from flask import Flask, request, send_file
+    from weasyprint import HTML
+    import io, base64, requests, urllib.parse as u
+
+    app = Flask(__name__)
+
+    @app.post('/api/make-pdf')
+    def make_pdf():
+        data = request.json  # obsahuje HTML a parametry
+        html = data['html']
+        pdf_bytes = HTML(string=html).write_pdf()
+        return send_file(io.BytesIO(pdf_bytes), mimetype='application/pdf', as_attachment=True, download_name='faktura.pdf')
+
+    if __name__ == '__main__':
+        app.run()
+
+    2) V klientu (tato stránka) místo html2pdf odešlete HTML na /api/make-pdf a stáhněte binárku:
+
+      const res = await fetch('https://VAŠE-DOMÉNA/api/make-pdf', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ html: document.getElementById('invoice').outerHTML })});
+      const blob = await res.blob();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'faktura.pdf'; a.click();
+
+    Tím zachováte Vaše stávající Python/WeasyPrint vykreslování, zatímco GitHub Pages zůstane pouze frontendem.
+  ====================== -->
 </body>
 </html>
