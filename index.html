@@ -72,7 +72,7 @@
         <div class="row">
           <div>
             <label>Číslo faktury</label>
-            <input id="invNumber" value="2025-001" />
+            <input id="invNumber" value="2025001" />
           </div>
           <div>
             <label>Neplátce DPH</label>
@@ -114,7 +114,7 @@
         <label>Název / jméno</label>
         <input id="cliName" value="Alfa Beta, s.r.o." />
         <label>Adresa</label>
-        <textarea id="cliAddr" rows="2">Jungmannova 26/15, 110 00 Praha 1</textarea>
+        <textarea id="cliAddr" rows="2">Vodičkova 6, 110 00 Praha 1</textarea>
         <div class="row">
           <div>
             <label>IČ</label>
@@ -139,8 +139,8 @@
           <tbody id="itemsBody"></tbody>
         </table>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" id="addItem">+ Přidat položku</button>
-          <button class="btn secondary" id="recalc">Přepočítat</button>
+          <button class="btn" id="addItem">+ Přidat</button>
+          <button class="btn secondary" id="recalc">Odebrat</button>
         </div>
 
         <h3 style="margin-top:16px">Platba</h3>
@@ -167,14 +167,14 @@
         <label>Zpráva pro příjemce</label>
         <input id="payMsg" value="Faktura 2025-001" />
 
-        <h3 style="margin-top:16px">Kontakt ve footeru</h3>
+        <h3 style="margin-top:16px">Kontakt</h3>
         <div class="row">
           <div>
             <label>Telefon</label>
             <input id="phone" value="+420 777 123 456" />
           </div>
           <div>
-            <label>Email</label>
+            <label>E-mail</label>
             <input id="email" value="jan.dvorak@example.com" />
           </div>
         </div>
@@ -183,7 +183,7 @@
           <button class="btn" id="makePdf">Vygenerovat PDF</button>
           <button class="btn secondary" id="updatePreview">Aktualizovat náhled</button>
         </div>
-        <p style="color:var(--muted);font-size:12px;margin-top:8px">Pozn.: GitHub Pages je statický – PDF se tvoří v prohlížeči (html2pdf). Pokud chcete zachovat Python/WeasyPrint backend, níže v komentářích kódu jsou instrukce k nasazení API a napojení.</p>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px"></p>
       </div>
     </div>
 
