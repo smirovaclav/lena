@@ -378,12 +378,12 @@
 
       // Dates
       const issue = document.getElementById('issueDate').value || todayISO();
-      const dueText = document.getElementById('dueDate').value || todayISO();
+      const dueDate = document.getElementById('dueDate').value || todayISO();
 
       const meta = document.getElementById('metaDates');
       meta.innerHTML = `
         <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
-        <div>Datum splatnosti: <strong>${fmtDateCZ(issue)}</strong></div>
+        <div>Datum splatnosti: <strong>${fmtDateCZ(dueDate)}</strong></div>
       `;
 
       // Parties
