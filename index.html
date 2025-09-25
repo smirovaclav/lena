@@ -374,7 +374,7 @@
       const msg = (document.getElementById('payMsg').value || '').trim();
     
       // display account (prefix only if existuje)
-      const accDisplay = accP ? `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
+      const accDisplay = accP : `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
       document.getElementById('payBlock').innerHTML = `
         Bankovní účet: <strong>${accDisplay}</strong><br>
         Variabilní symbol: <strong>${vs}</strong><br>
