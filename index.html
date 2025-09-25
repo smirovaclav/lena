@@ -72,7 +72,7 @@
         <div class="row">
           <div>
             <label>Číslo faktury</label>
-            <input id="invNumber" value="2025001" />
+            <input id="invNumber" value="2025-001" />
           </div>
           <div>
             <label>Neplátce DPH</label>
@@ -89,8 +89,8 @@
             <input id="issueDate" type="date" />
           </div>
           <div>
-            <label>Datum splatnosti</label>
-            <input id="dueDate" type="date" />
+            <label>Datum splatnosti (text)</label>
+            <input id="dueDate" type="text" placeholder="např. 14.10.2025 nebo 14 dní od vystavení" />
           </div>
         </div>
 
@@ -114,7 +114,7 @@
         <label>Název / jméno</label>
         <input id="cliName" value="Alfa Beta, s.r.o." />
         <label>Adresa</label>
-        <textarea id="cliAddr" rows="2">Vodičkova 6, 110 00 Praha 1</textarea>
+        <textarea id="cliAddr" rows="2">Jungmannova 26/15, 110 00 Praha 1</textarea>
         <div class="row">
           <div>
             <label>IČ</label>
@@ -139,8 +139,8 @@
           <tbody id="itemsBody"></tbody>
         </table>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" id="addItem">+ Přidat</button>
-          <button class="btn secondary" id="recalc">Odebrat</button>
+          <button class="btn" id="addItem">+ Přidat položku</button>
+          <button class="btn secondary" id="recalc">Přepočítat</button>
         </div>
 
         <h3 style="margin-top:16px">Platba</h3>
@@ -167,14 +167,14 @@
         <label>Zpráva pro příjemce</label>
         <input id="payMsg" value="Faktura 2025-001" />
 
-        <h3 style="margin-top:16px">Kontakt</h3>
+        <h3 style="margin-top:16px">Kontakt ve footeru</h3>
         <div class="row">
           <div>
             <label>Telefon</label>
             <input id="phone" value="+420 777 123 456" />
           </div>
           <div>
-            <label>E-mail</label>
+            <label>Email</label>
             <input id="email" value="jan.dvorak@example.com" />
           </div>
         </div>
@@ -183,7 +183,6 @@
           <button class="btn" id="makePdf">Vygenerovat PDF</button>
           <button class="btn secondary" id="updatePreview">Aktualizovat náhled</button>
         </div>
-        <p style="color:var(--muted);font-size:12px;margin-top:8px"></p>
       </div>
     </div>
 
@@ -200,9 +199,7 @@
                   <h1 id="invTitle">Faktura č. 2025-001</h1>
                   <span id="vatBadgeView" class="badge">Neplátce DPH</span>
                 </div>
-                <div class="meta" id="metaDates">
-                  <!-- dates injected here -->
-                </div>
+                <div class="meta" id="metaDates"></div>
               </div>
               <div id="qrWrap" style="text-align:right">
                 <img id="qrImg" class="qrimg" alt="QR Platba" />
@@ -235,7 +232,6 @@
               <h3>Platební údaje</h3>
               <p id="payBlock"></p>
             </div>
-            <!-- QR je výše v headeru vpravo -->
           </section>
 
           <footer>
@@ -248,27 +244,26 @@
   </div>
 
   <!-- html2pdf for client-side PDF generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" integrity="sha512-YcsIP6v+1zqO6i3v0kW4oY6yA5l3cC6wG9f4l3Czq2Wk0o3KZDLf5qG8V+8lYwM0m3M3o3n4Q2U4l1bJvC8xwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
   <script>
     // ===== Helpers =====
     const fmtCZK = (num)=> new Intl.NumberFormat('cs-CZ', {style:'currency', currency:'CZK'}).format(num);
-  
-    // formátujeme datum vystavení (DD.MM.YYYY)
+
+    // formátování data vystavení (DD.MM.YYYY) - bezpečně pro YYYY-MM-DD nebo Date
     const fmtDateCZ = (isoOrDate)=>{
       if(!isoOrDate) return '';
       if(isoOrDate instanceof Date){
         const d = isoOrDate;
         return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
       }
-      // očekáváme YYYY-MM-DD
       const m = String(isoOrDate).match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if(m){
         return `${m[3]}.${m[2]}.${m[1]}`;
       }
-      // fallback: vrátit string tak jak je
       return String(isoOrDate);
     };
-  
+
     function todayISO(){
       const d = new Date();
       const yyyy = d.getFullYear();
@@ -276,13 +271,13 @@
       const dd = String(d.getDate()).padStart(2,'0');
       return `${yyyy}-${mm}-${dd}`;
     }
-  
+
     // ===== Items dynamic table =====
     const items = [
       { desc: 'Datová analýza – konzultace', qty: 4, unit: 850 },
       { desc: 'Zpracování reportu', qty: 2, unit: 925 }
     ];
-  
+
     function renderItemsEditor(){
       const body = document.getElementById('itemsBody');
       body.innerHTML = '';
@@ -297,9 +292,9 @@
         body.appendChild(tr);
       });
     }
-  
+
     function addItem(){ items.push({desc:'Nová položka', qty:1, unit:1000}); renderItemsEditor(); updateAll(); }
-  
+
     function hookItemInputs(){
       document.getElementById('itemsBody').addEventListener('input', (e)=>{
         const i = +e.target.dataset.i; const k = e.target.dataset.k;
@@ -311,9 +306,9 @@
         }
       });
     }
-  
+
     function calcTotal(){ return items.reduce((s,it)=> s + (Number(it.qty)||0)*(Number(it.unit)||0), 0); }
-  
+
     function renderItemsPreview(){
       const wrap = document.getElementById('itemsPreview');
       wrap.innerHTML = '';
@@ -340,7 +335,7 @@
         wrap.appendChild(row);
       });
     }
-  
+
     // ===== QR generator (Paylibo) =====
     async function buildQR(total){
       const acc = document.getElementById('accNumber').value.trim();
@@ -348,7 +343,7 @@
       const currency = document.getElementById('currency').value.trim() || 'CZK';
       const vs = document.getElementById('vs').value.trim();
       const msg = document.getElementById('payMsg').value.trim();
-  
+
       const params = new URLSearchParams({
         accountNumber: acc,
         bankCode: bank,
@@ -358,7 +353,7 @@
         message: msg
       });
       const url = `https://api.paylibo.com/paylibo/generator/czech/image?${params.toString()}`;
-  
+
       try{
         const res = await fetch(url, {mode:'cors'});
         const blob = await res.blob();
@@ -368,10 +363,11 @@
         const dataUrl = await p;
         document.getElementById('qrImg').src = dataUrl;
       }catch(err){
+        // fallback: direct URL (může mít CORS)
         document.getElementById('qrImg').src = url;
       }
     }
-  
+
     // ===== Main render =====
     function updateAll(){
       // Header title + badge
@@ -379,18 +375,17 @@
       document.getElementById('invTitle').textContent = `Faktura č. ${invNo || '---'}`;
       const showBadge = document.getElementById('vatBadge').value === 'true';
       document.getElementById('vatBadgeView').style.display = showBadge? 'inline-block':'none';
-  
+
       // Dates
       const issue = document.getElementById('issueDate').value || todayISO();
-      // dueDate je prostý text (string) zadávaný uživatelem
       const dueText = document.getElementById('dueDate').value || '';
-  
+
       const meta = document.getElementById('metaDates');
       meta.innerHTML = `
         <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
         <div>Datum splatnosti: <strong>${dueText ? dueText : '---'}</strong></div>
       `;
-  
+
       // Parties
       const sup = {
         name: document.getElementById('supName').value,
@@ -410,12 +405,12 @@
       document.getElementById('cliBlock').innerHTML = `
         <strong>${cli.name}</strong><br>${cli.addr.replaceAll('\n','<br>')}<br>
         IČ: ${cli.ic}${cli.dic? `<br>DIČ: ${cli.dic}`:''}`;
-  
+
       // Items + total
       renderItemsPreview();
       const total = calcTotal();
       document.getElementById('grandTotal').textContent = fmtCZK(total);
-  
+
       // Payment block
       const acc = document.getElementById('accNumber').value.trim();
       const bank = document.getElementById('bankCode').value.trim();
@@ -425,15 +420,15 @@
         Bankovní účet: <strong>${acc}/${bank}</strong><br>
         Variabilní symbol: <strong>${vs}</strong><br>
         Způsob úhrady: bankovní převod`;
-  
+
       // Footer
       document.getElementById('leftFoot').textContent = `Telefon: ${document.getElementById('phone').value}`;
       document.getElementById('rightFoot').textContent = `Email: ${document.getElementById('email').value}`;
-  
-      // QR
+
+      // QR code
       buildQR(total);
     }
-  
+
     // ===== Logo upload =====
     document.getElementById('logoInput').addEventListener('change', (e)=>{
       const file = e.target.files?.[0];
@@ -448,12 +443,12 @@
         slot.innerHTML = '<span>Logo</span>';
       }
     });
-  
+
     // ===== Buttons =====
     document.getElementById('addItem').addEventListener('click', (e)=>{ e.preventDefault(); addItem(); });
     document.getElementById('recalc').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
     document.getElementById('updatePreview').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
-  
+
     document.getElementById('makePdf').addEventListener('click', async (e)=>{
       e.preventDefault();
       updateAll();
@@ -468,12 +463,12 @@
       };
       await html2pdf().set(opt).from(element).save();
     });
-  
+
     // ===== Init =====
     function init(){
       // pouze issue date se nastaví na dnes
       document.getElementById('issueDate').value = todayISO();
-  
+
       renderItemsEditor();
       hookItemInputs();
       updateAll();
