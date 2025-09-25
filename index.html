@@ -296,7 +296,31 @@
         body.appendChild(tr);
       });
     }
-
+    // ===== připojení listenerů pro tlačítka (minimální oprava) =====
+    function attachListeners(){
+      const addBtn = document.getElementById('addItem');
+      const recalcBtn = document.getElementById('recalc');
+      const updateBtn = document.getElementById('updatePreview');
+      const makePdfBtn = document.getElementById('makePdf');
+    
+      if(addBtn) addBtn.addEventListener('click', (e)=>{ e.preventDefault(); addItem(); });
+      if(recalcBtn) recalcBtn.addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
+      if(updateBtn) updateBtn.addEventListener('click', (e)=>{ e.preventDefault(); /*debug*/ console.log('updatePreview clicked'); updateAll(); });
+      if(makePdfBtn) makePdfBtn.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        updateAll();
+        const element = document.getElementById('invoice');
+        const fileName = `faktura_${document.getElementById('invNumber').value || 'dokument'}.pdf`;
+        const opt = {
+          margin:       [10, 10],
+          filename:     fileName,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(element).save();
+      });
+    }
     function addItem(){ items.push({desc:'Nová položka', qty:1, unit:1000}); renderItemsEditor(); updateAll(); }
 
     function hookItemInputs(){
@@ -463,6 +487,7 @@
     
       renderItemsEditor();
       hookItemInputs();
+      attachListeners();   // <-- přidej toto
       updateAll();
     }
     init();
