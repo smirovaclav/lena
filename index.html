@@ -146,6 +146,10 @@
         <h3 style="margin-top:16px">Platba</h3>
         <div class="row">
           <div>
+            <label>Předčíslí</label>
+            <input id="accPrefix" placeholder="19" />
+          </div>
+          <div>
             <label>Číslo účtu</label>
             <input id="accNumber" value="222785210" />
           </div>
@@ -338,20 +342,28 @@
 
     // ===== QR generator (Paylibo) =====
     async function buildQR(total){
-      const acc = document.getElementById('accNumber').value.trim();
+      const accP = document.getElementById('accPrefix').value.trim();
+      const accN = document.getElementById('accNumber').value.trim();
       const bank = document.getElementById('bankCode').value.trim();
       const currency = document.getElementById('currency').value.trim() || 'CZK';
       const vs = document.getElementById('vs').value.trim();
       const msg = document.getElementById('payMsg').value.trim();
 
+const accDisplay = accP ? `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
+document.getElementById('payBlock').innerHTML = `
+  Bankovní účet: <strong>${accDisplay}</strong><br>
+  Variabilní symbol: <strong>${vs}</strong><br>
+  Způsob úhrady: bankovní převod`;
+      
       const params = new URLSearchParams({
-        accountNumber: acc,
+        accountNumber: accN,
         bankCode: bank,
         amount: total.toFixed(2),
         currency,
         vs,
         message: msg
       });
+      if(accP) params.append('accountPrefix', accP;
       const url = `https://api.paylibo.com/paylibo/generator/czech/image?${params.toString()}`;
 
       try{
@@ -412,12 +424,13 @@
       document.getElementById('grandTotal').textContent = fmtCZK(total);
 
       // Payment block
-      const acc = document.getElementById('accNumber').value.trim();
+      const accP = document.getElementById('accPrefix').value.trim();
+      const accN = document.getElementById('accNumber').value.trim();
       const bank = document.getElementById('bankCode').value.trim();
       const vs = document.getElementById('vs').value.trim();
       const currency = document.getElementById('currency').value.trim()||'CZK';
       document.getElementById('payBlock').innerHTML = `
-        Bankovní účet: <strong>${acc}/${bank}</strong><br>
+        Bankovní účet: <strong>${accP}-${accN}/${bank}</strong><br>
         Variabilní symbol: <strong>${vs}</strong><br>
         Způsob úhrady: bankovní převod`;
 
