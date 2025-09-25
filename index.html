@@ -340,152 +340,133 @@
       });
     }
 
-    // ===== QR generator (Paylibo) =====
-    async function buildQR(total){
-      const accP = document.getElementById('accPrefix').value.trim();
-      const accN = document.getElementById('accNumber').value.trim();
-      const bank = document.getElementById('bankCode').value.trim();
-      const currency = document.getElementById('currency').value.trim() || 'CZK';
-      const vs = document.getElementById('vs').value.trim();
-      const msg = document.getElementById('payMsg').value.trim();
-
-const accDisplay = accP ? `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
-document.getElementById('payBlock').innerHTML = `
-  Bankovní účet: <strong>${accDisplay}</strong><br>
-  Variabilní symbol: <strong>${vs}</strong><br>
-  Způsob úhrady: bankovní převod`;
-      
-      const params = new URLSearchParams({
-        accountNumber: accN,
-        bankCode: bank,
-        amount: total.toFixed(2),
-        currency,
-        vs,
-        message: msg
-      });
-      if(accP) params.append('accountPrefix', accP;
-      const url = `https://api.paylibo.com/paylibo/generator/czech/image?${params.toString()}`;
-
-      try{
-        const res = await fetch(url, {mode:'cors'});
-        const blob = await res.blob();
-        const reader = new FileReader();
-        const p = new Promise(ok=>{ reader.onload = ()=> ok(reader.result); });
-        reader.readAsDataURL(blob);
-        const dataUrl = await p;
-        document.getElementById('qrImg').src = dataUrl;
-      }catch(err){
-        // fallback: direct URL (může mít CORS)
-        document.getElementById('qrImg').src = url;
-      }
-    }
-
-    // ===== Main render =====
-    function updateAll(){
-      // Header title + badge
-      const invNo = document.getElementById('invNumber').value.trim();
-      document.getElementById('invTitle').textContent = `Faktura č. ${invNo || '---'}`;
-      const showBadge = document.getElementById('vatBadge').value === 'true';
-      document.getElementById('vatBadgeView').style.display = showBadge? 'inline-block':'none';
-
-      // Dates
-      const issue = document.getElementById('issueDate').value || todayISO();
-      const dueDate = document.getElementById('dueDate').value || todayISO();
-
-      const meta = document.getElementById('metaDates');
-      meta.innerHTML = `
-        <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
-        <div>Datum splatnosti: <strong>${fmtDateCZ(dueDate)}</strong></div>
-      `;
-
-      // Parties
-      const sup = {
-        name: document.getElementById('supName').value,
-        addr: document.getElementById('supAddr').value,
-        ic: document.getElementById('supIC').value,
-        dic: document.getElementById('supDIC').value
-      };
-      const cli = {
-        name: document.getElementById('cliName').value,
-        addr: document.getElementById('cliAddr').value,
-        ic: document.getElementById('cliIC').value,
-        dic: document.getElementById('cliDIC').value
-      };
-      document.getElementById('supBlock').innerHTML = `
-        <strong>${sup.name}</strong><br>${sup.addr.replaceAll('\n','<br>')}<br>
-        IČ: ${sup.ic}${sup.dic? `<br>DIČ: ${sup.dic}`:''}`;
-      document.getElementById('cliBlock').innerHTML = `
-        <strong>${cli.name}</strong><br>${cli.addr.replaceAll('\n','<br>')}<br>
-        IČ: ${cli.ic}${cli.dic? `<br>DIČ: ${cli.dic}`:''}`;
-
-      // Items + total
-      renderItemsPreview();
-      const total = calcTotal();
-      document.getElementById('grandTotal').textContent = fmtCZK(total);
-
-      // Payment block
-      const accP = document.getElementById('accPrefix').value.trim();
-      const accN = document.getElementById('accNumber').value.trim();
-      const bank = document.getElementById('bankCode').value.trim();
-      const vs = document.getElementById('vs').value.trim();
-      const currency = document.getElementById('currency').value.trim()||'CZK';
-      document.getElementById('payBlock').innerHTML = `
-        Bankovní účet: <strong>${accP}-${accN}/${bank}</strong><br>
-        Variabilní symbol: <strong>${vs}</strong><br>
-        Způsob úhrady: bankovní převod`;
-
-      // Footer
-      document.getElementById('leftFoot').textContent = `Telefon: ${document.getElementById('phone').value}`;
-      document.getElementById('rightFoot').textContent = `Email: ${document.getElementById('email').value}`;
-
-      // QR code
-      buildQR(total);
-    }
-
-    // ===== Logo upload =====
-    document.getElementById('logoInput').addEventListener('change', (e)=>{
-      const file = e.target.files?.[0];
-      const slot = document.getElementById('logoSlot');
-      if(file){
-        const reader = new FileReader();
-        reader.onload = ()=>{
-          slot.innerHTML = `<img src="${reader.result}" alt="logo"/>`;
-        }
-        reader.readAsDataURL(file);
-      } else {
-        slot.innerHTML = '<span>Logo</span>';
-      }
+  // ===== QR generator (Paylibo) =====
+  async function buildQR(total){
+    const accP = (document.getElementById('accPrefix').value || '').trim();
+    const accN = (document.getElementById('accNumber').value || '').trim();
+    const bank = (document.getElementById('bankCode').value || '').trim();
+    const currency = (document.getElementById('currency').value || '').trim() || 'CZK';
+    const vs = (document.getElementById('vs').value || '').trim();
+    const msg = (document.getElementById('payMsg').value || '').trim();
+  
+    // display account (prefix only if existuje)
+    const accDisplay = accP ? `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
+    document.getElementById('payBlock').innerHTML = `
+      Bankovní účet: <strong>${accDisplay}</strong><br>
+      Variabilní symbol: <strong>${vs}</strong><br>
+      Způsob úhrady: bankovní převod`;
+  
+    const params = new URLSearchParams({
+      accountNumber: accN,
+      bankCode: bank,
+      amount: total.toFixed(2),
+      currency,
+      vs,
+      message: msg
     });
-
-    // ===== Buttons =====
-    document.getElementById('addItem').addEventListener('click', (e)=>{ e.preventDefault(); addItem(); });
-    document.getElementById('recalc').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
-    document.getElementById('updatePreview').addEventListener('click', (e)=>{ e.preventDefault(); updateAll(); });
-
-    document.getElementById('makePdf').addEventListener('click', async (e)=>{
-      e.preventDefault();
-      updateAll();
-      const element = document.getElementById('invoice');
-      const fileName = `faktura_${document.getElementById('invNumber').value || 'dokument'}.pdf`;
-      const opt = {
-        margin:       [10, 10],
-        filename:     fileName,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      await html2pdf().set(opt).from(element).save();
-    });
-
-    // ===== Init =====
-    function init(){
-      // pouze issue date se nastaví na dnes
-      document.getElementById('issueDate').value = todayISO();
-      document.getElementById('dueDate').value = todayISO();
-      renderItemsEditor();
-      hookItemInputs();
-      updateAll();
+    // přidat accountPrefix jen pokud existuje (správně uzavřeno)
+    if(accP) params.append('accountPrefix', accP);
+  
+    const url = `https://api.paylibo.com/paylibo/generator/czech/image?${params.toString()}`;
+  
+    try{
+      const res = await fetch(url, {mode:'cors'});
+      const blob = await res.blob();
+      const reader = new FileReader();
+      const p = new Promise(ok=>{ reader.onload = ()=> ok(reader.result); });
+      reader.readAsDataURL(blob);
+      const dataUrl = await p;
+      document.getElementById('qrImg').src = dataUrl;
+    }catch(err){
+      // fallback: direct URL (může mít CORS)
+      document.getElementById('qrImg').src = url;
     }
+  }
+  
+  
+  // ===== Main render =====
+  function updateAll(){
+    // Header title + badge
+    const invNo = (document.getElementById('invNumber').value || '').trim();
+    document.getElementById('invTitle').textContent = `Faktura č. ${invNo || '---'}`;
+    const showBadge = document.getElementById('vatBadge').value === 'true';
+    document.getElementById('vatBadgeView').style.display = showBadge? 'inline-block':'none';
+  
+    // Dates: issueDate is ISO (date input). dueDate may be date or free text.
+    const issue = document.getElementById('issueDate').value || todayISO();
+    const dueRaw = (document.getElementById('dueDate').value || '').trim();
+  
+    // Pokud dueRaw vypadá jako ISO YYYY-MM-DD (třeba kdyby máš type="date"), převeď hezky,
+    // jinak zobraz přesně ten text (uživatel chce volný string).
+    let dueDisplay;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(dueRaw)){
+      dueDisplay = fmtDateCZ(dueRaw);
+    } else {
+      dueDisplay = dueRaw || '---';
+    }
+  
+    const meta = document.getElementById('metaDates');
+    meta.innerHTML = `
+      <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
+      <div>Datum splatnosti: <strong>${dueDisplay}</strong></div>
+    `;
+  
+    // Parties
+    const sup = {
+      name: document.getElementById('supName').value,
+      addr: document.getElementById('supAddr').value,
+      ic: document.getElementById('supIC').value,
+      dic: document.getElementById('supDIC').value
+    };
+    const cli = {
+      name: document.getElementById('cliName').value,
+      addr: document.getElementById('cliAddr').value,
+      ic: document.getElementById('cliIC').value,
+      dic: document.getElementById('cliDIC').value
+    };
+    document.getElementById('supBlock').innerHTML = `
+      <strong>${sup.name}</strong><br>${sup.addr.replaceAll('\n','<br>')}<br>
+      IČ: ${sup.ic}${sup.dic? `<br>DIČ: ${sup.dic}`:''}`;
+    document.getElementById('cliBlock').innerHTML = `
+      <strong>${cli.name}</strong><br>${cli.addr.replaceAll('\n','<br>')}<br>
+      IČ: ${cli.ic}${cli.dic? `<br>DIČ: ${cli.dic}`:''}`;
+  
+    // Items + total
+    renderItemsPreview();
+    const total = calcTotal();
+    document.getElementById('grandTotal').textContent = fmtCZK(total);
+  
+    // Payment block (zobrazit prefix jen pokud existuje)
+    const accP = (document.getElementById('accPrefix').value || '').trim();
+    const accN = (document.getElementById('accNumber').value || '').trim();
+    const bank = (document.getElementById('bankCode').value || '').trim();
+    const vs = (document.getElementById('vs').value || '').trim();
+    const accBlock = accP ? `${accP}-${accN}/${bank}` : `${accN}/${bank}`;
+    document.getElementById('payBlock').innerHTML = `
+      Bankovní účet: <strong>${accBlock}</strong><br>
+      Variabilní symbol: <strong>${vs}</strong><br>
+      Způsob úhrady: bankovní převod`;
+  
+    // Footer
+    document.getElementById('leftFoot').textContent = `Telefon: ${document.getElementById('phone').value}`;
+    document.getElementById('rightFoot').textContent = `Email: ${document.getElementById('email').value}`;
+  
+    // QR code
+    buildQR(total);
+  }
+  
+  
+  // ===== Init =====
+  function init(){
+    // pouze issue date se nastaví na dnes
+    document.getElementById('issueDate').value = todayISO();
+    // pokud chceš, aby dueDate neměl výchozí hodnotu, než ji nastavíme, odstraň následující řádku:
+    // document.getElementById('dueDate').value = todayISO();
+  
+    renderItemsEditor();
+    hookItemInputs();
+    updateAll();
+  }
     init();
   </script>
 </body>
