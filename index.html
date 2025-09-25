@@ -458,10 +458,8 @@
   
   // ===== Init =====
   function init(){
-    // pouze issue date se nastaví na dnes
     document.getElementById('issueDate').value = todayISO();
-    // pokud chceš, aby dueDate neměl výchozí hodnotu, než ji nastavíme, odstraň následující řádku:
-    // document.getElementById('dueDate').value = todayISO();
+    document.getElementById('dueDate').value = todayISO();
   
     renderItemsEditor();
     hookItemInputs();
