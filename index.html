@@ -90,7 +90,7 @@
           </div>
           <div>
             <label>Datum splatnosti (text)</label>
-            <input id="dueDate" type="text" placeholder="např. 14.10.2025 nebo 14 dní od vystavení" />
+            <input id="dueDate" type="date" />
           </div>
         </div>
 
@@ -378,12 +378,12 @@
 
       // Dates
       const issue = document.getElementById('issueDate').value || todayISO();
-      const dueText = document.getElementById('dueDate').value || '';
+      const dueText = document.getElementById('dueDate').value || todayISO();
 
       const meta = document.getElementById('metaDates');
       meta.innerHTML = `
         <div>Datum vystavení: <strong>${fmtDateCZ(issue)}</strong></div>
-        <div>Datum splatnosti: <strong>${dueText ? dueText : '---'}</strong></div>
+        <div>Datum splatnosti: <strong>${fmtDateCZ(issue)}</strong></div>
       `;
 
       // Parties
@@ -468,7 +468,7 @@
     function init(){
       // pouze issue date se nastaví na dnes
       document.getElementById('issueDate').value = todayISO();
-
+      document.getElementById('dueDate').value = todayISO();
       renderItemsEditor();
       hookItemInputs();
       updateAll();
