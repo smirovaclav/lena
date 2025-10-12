@@ -17,4 +17,21 @@ document.getElementById('makePdf').addEventListener('click', async()=>{
     html2canvas:{scale:2,useCORS:true},
     jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   }).from(invoice).save();
+  });
+  document.getElementById('logoSlot').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+  
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const logoSlot = document.getElementById('logoSlot');
+        logoSlot.innerHTML = `<img src="${event.target.result}" alt="Logo">`;
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
 });
