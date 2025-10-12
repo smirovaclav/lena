@@ -38,12 +38,29 @@ header{display:flex;justify-content:space-between;align-items:flex-start;margin-
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  cursor: pointer;           /* ukazatel ruky při najetí */
-  user-select: none;         /* zakáže označování textu */
+  cursor: pointer;
+  user-select: none; /* nelze označovat text */
+  transition: background 0.2s, border-color 0.2s;
 }
-.logo-slot * {
-  pointer-events: none;      /* zakáže klikání na vnitřní text nebo obrázek */
+
+.logo-slot:hover {
+  background: #f1f5f9; /* lehké zvýraznění po najetí */
+  border-color: #94a3b8;
 }
+
+.logo-slot img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* aby šlo kliknout i na obrázek */
+}
+
+.logo-placeholder {
+  color: #94a3b8;
+  font-size: 14px;
+  pointer-events: none; /* klik funguje i přes text */
+}
+
 .brand h1{margin:0;font-size:22px;}
 .badge{display:inline-block;background:rgba(11,92,171,.08);color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px;}
 .meta{font-size:12px;color:var(--muted);margin-top:8px;}
