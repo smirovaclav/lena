@@ -3,6 +3,7 @@ document.getElementById('makePdf').addEventListener('click', async () => {
   const logoSlot = document.getElementById('logoSlot');
   let total = 0;
 
+  // spočítat celkovou cenu
   document.querySelectorAll('.row-item').forEach(row => {
     const qty = parseFloat(row.children[1].textContent.replace(/\D/g, '') || 0);
     const unit = parseFloat(row.children[2].textContent.replace(/\D/g, '') || 0);
@@ -15,12 +16,14 @@ document.getElementById('makePdf').addEventListener('click', async () => {
   await buildQR(total);
 
   // === SCHOVÁNÍ RÁMEČKU LOGA ===
-  // Pokud je vloženo logo, zachová se obrázek ale border se odstraní
   const logoImg = logoSlot.querySelector('img');
-  const hasImage = !!logoImg;
-  let prevBorder = logoSlot.style.border;
+  const hadImage = !!logoImg;
+
+  // pokud je obrázek, border odstraníme, pokud není, border také odstraníme jen pro PDF
+  const prevBorder = logoSlot.style.border;
   logoSlot.style.border = 'none';
 
+  // generování PDF
   await html2pdf().set({
     margin: 0,
     filename: 'faktura.pdf',
@@ -30,7 +33,7 @@ document.getElementById('makePdf').addEventListener('click', async () => {
   }).from(invoice).save();
 
   // === OBNOVENÍ RÁMEČKU ===
-  if (!hasImage) {
-    logoSlot.style.border = prevBorder;
+  if (!hadImage) {
+    logoSlot.style.border = prevBorder; // pokud nebylo logo, border se obnoví
   }
 });
