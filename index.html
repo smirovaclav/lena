@@ -23,9 +23,7 @@ body{
   height:297mm;  
   padding:10mm;                 /* padding uvnitř */
   background:#fff;
-  border:2px solid var(--border); /* viditelný rámeček */
-  border-radius:12px;
-  box-sizing:border-box;        /* border + padding se započítá do velikosti */
+  box-sizing:border-box;
   font-size:14px;
   overflow:auto;
 }
@@ -152,7 +150,7 @@ document.getElementById('makePdf').addEventListener('click', async()=>{
   document.getElementById('grandTotal').textContent = total.toLocaleString('cs-CZ',{style:'currency',currency:'CZK'});
   await buildQR(total);
   html2pdf().set({
-    margin: 0,               // žádný margin → jedna stránka
+    margin: 0,
     filename:'faktura.pdf',
     image:{type:'jpeg',quality:0.98},
     html2canvas:{scale:2,useCORS:true},
