@@ -15,44 +15,28 @@ body{
   font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
 .wrap{
-  max-width: 230mm;
+  max-width: 210mm;
   margin: 16px auto;
-  padding: 0 10px;
 }
 .sheet{
   width:210mm;
-  height:297mm;
-  margin:0 auto;
-  padding:20mm;
+  height:297mm;  
+  padding:10mm;                 /* padding uvnitř */
   background:#fff;
-  border:1px solid var(--border);
+  border:2px solid var(--border); /* viditelný rámeček */
   border-radius:12px;
-  box-shadow:0 0 5px rgba(0,0,0,0.1);
+  box-sizing:border-box;        /* border + padding se započítá do velikosti */
   font-size:14px;
   overflow:auto;
 }
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:16px;
-}
-.logo-slot{
-  width:160px; height:80px;
-  border:2px dashed #cbd5e1;
-  border-radius:12px;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden;
-}
-.logo-slot img{
-  max-width:100%; max-height:100%; object-fit:contain;
-}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.logo-slot{width:160px;height:80px;border:2px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.logo-slot img{max-width:100%;max-height:100%;object-fit:contain;}
 .brand h1{margin:0;font-size:22px;}
 .badge{display:inline-block;background:rgba(11,92,171,.08);color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px;}
 .meta{font-size:12px;color:var(--muted);margin-top:8px;}
 .items{display:grid;gap:8px;margin:16px 0;}
 .row-item{display:grid;grid-template-columns:1fr 80px 100px 100px;gap:8px;padding:8px;border:1px solid var(--border);border-radius:8px;}
-.row-item div{font-size:14px;}
 .total-box{display:flex;justify-content:flex-end;margin:12px 0;}
 .total-card{min-width:200px;border:2px solid var(--border);border-radius:12px;padding:8px;background:#fff;}
 .total-card .label{font-size:12px;color:var(--muted);}
@@ -157,7 +141,6 @@ async function buildQR(total){
 
 document.getElementById('makePdf').addEventListener('click', async()=>{
   const invoice = document.getElementById('invoice');
-  // spočítat celkovou cenu
   let total=0;
   document.querySelectorAll('.row-item').forEach(row=>{
     const qty = parseFloat(row.children[1].textContent.replace(/\D/g,'')||0);
@@ -169,7 +152,7 @@ document.getElementById('makePdf').addEventListener('click', async()=>{
   document.getElementById('grandTotal').textContent = total.toLocaleString('cs-CZ',{style:'currency',currency:'CZK'});
   await buildQR(total);
   html2pdf().set({
-    margin: [10,10],
+    margin: 0,               // žádný margin → jedna stránka
     filename:'faktura.pdf',
     image:{type:'jpeg',quality:0.98},
     html2canvas:{scale:2,useCORS:true},
