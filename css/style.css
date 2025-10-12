@@ -40,6 +40,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;margin-
   overflow: hidden;
   cursor: pointer;
   user-select: none; /* nelze označovat text */
+  caret-color: transparent;
   transition: background 0.2s, border-color 0.2s;
 }
 
