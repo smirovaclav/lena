@@ -55,12 +55,21 @@
     .items { margin-top: 20px; }
     .row-item {
       display: grid;
-      grid-template-columns: 1fr 80px 100px 120px;
+      grid-template-columns: 1fr 80px 100px 120px 40px;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 8px;
       margin-bottom: 8px;
       align-items: center;
+      gap: 6px;
+    }
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #c00;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
     }
     .total { text-align: right; margin-top: 10px; font-weight: 600; font-size: 16px; }
     footer {
@@ -85,6 +94,7 @@
       font-weight: 600;
     }
     .qrimg { margin-top: 10px; max-width: 120px; display: inline-block; }
+    #addRow { margin-top: 10px; background: #e5e7eb; color: #111; }
   </style>
 </head>
 <body>
@@ -94,7 +104,7 @@
         <div class="logo" id="logoSlot" onclick="uploadLogo()">Logo</div>
         <h1 contenteditable="true" id="invNumber">Faktura č. 2025-001</h1>
         <div class="meta">
-          Datum vystavení: <span contenteditable="true" id="issueDate">12.10.2025</span><br>
+          Datum vystavení: <span contenteditable="true" id="issueDate"></span><br>
           Datum splatnosti: <span contenteditable="true" id="dueDate">19.10.2025</span>
         </div>
       </div>
@@ -124,21 +134,18 @@
 
     <section class="items" id="items">
       <div class="row-item">
-        <div contenteditable="true">Datová analýza – konzultace</div>
-        <div contenteditable="true">4</div>
-        <div contenteditable="true">850</div>
-        <div>= 3400 Kč</div>
-      </div>
-      <div class="row-item">
-        <div contenteditable="true">Zpracování reportu</div>
-        <div contenteditable="true">2</div>
-        <div contenteditable="true">925</div>
-        <div>= 1850 Kč</div>
+        <div contenteditable="true" class="desc">Datová analýza – konzultace</div>
+        <div contenteditable="true" class="qty">4</div>
+        <div contenteditable="true" class="price">850</div>
+        <div class="sum">= 3400 Kč</div>
+        <button class="remove-btn" onclick="removeRow(this)">×</button>
       </div>
     </section>
 
+    <button id="addRow">+ Přidat položku</button>
+
     <div class="total">
-      Celkem: <span id="grandTotal">5250 Kč</span>
+      Celkem: <span id="grandTotal">3400 Kč</span>
     </div>
 
     <section class="grid">
@@ -159,10 +166,72 @@
     </footer>
   </div>
 
-  <button id="makePdf">Vygenerovat PDF</button>
+  <button id="makePdf">💾 Vygenerovat PDF</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
   <script>
+    // 🕓 Automatické datum vystavení
+    document.getElementById('issueDate').innerText = new Date().toLocaleDateString('cs-CZ');
+
+    // 🖼️ Logo upload
+    function uploadLogo(){
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = e=>{
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ()=> {
+          const slot = document.getElementById('logoSlot');
+          slot.innerHTML = `<img src="${reader.result}" style="max-width:100%;max-height:100%;">`;
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    }
+
+    // ➕ Přidání a odstranění řádků
+    document.getElementById('addRow').addEventListener('click', ()=>{
+      const newRow = document.createElement('div');
+      newRow.className = 'row-item';
+      newRow.innerHTML = `
+        <div contenteditable="true" class="desc">Nová položka</div>
+        <div contenteditable="true" class="qty">1</div>
+        <div contenteditable="true" class="price">0</div>
+        <div class="sum">= 0 Kč</div>
+        <button class="remove-btn" onclick="removeRow(this)">×</button>`;
+      document.getElementById('items').appendChild(newRow);
+      attachListeners(newRow);
+      updateTotals();
+    });
+
+    function removeRow(btn){
+      btn.parentElement.remove();
+      updateTotals();
+    }
+
+    // ✅ Automatický přepočet
+    function attachListeners(scope=document){
+      scope.querySelectorAll('.qty, .price, .desc').forEach(el=>{
+        el.addEventListener('input', updateTotals);
+      });
+    }
+
+    function updateTotals(){
+      let total = 0;
+      document.querySelectorAll('.row-item').forEach(row=>{
+        const qty = parseFloat(row.querySelector('.qty').innerText.replace(',','.')) || 0;
+        const price = parseFloat(row.querySelector('.price').innerText.replace(',','.')) || 0;
+        const sum = qty * price;
+        row.querySelector('.sum').innerText = `= ${sum.toLocaleString('cs-CZ')} Kč`;
+        total += sum;
+      });
+      document.getElementById('grandTotal').innerText = `${total.toLocaleString('cs-CZ')} Kč`;
+    }
+
+    attachListeners();
+    updateTotals();
+
+    // 🧾 Generování QR
     async function generateQR(total){
       const pay = document.getElementById('payBlock').innerText;
       const match = pay.match(/(\d{1,6}-)?\d{1,10}\/\d{4}/);
@@ -180,6 +249,7 @@
       reader.readAsDataURL(blob);
     }
 
+    // 💾 Export PDF
     document.getElementById('makePdf').addEventListener('click', async ()=>{
       const totalText = document.getElementById('grandTotal').innerText;
       const total = parseFloat(totalText.replace(/[^\d.,]/g,'').replace(',','.')) || 0;
@@ -193,21 +263,6 @@
       };
       await html2pdf().set(opt).from(element).save();
     });
-
-    function uploadLogo(){
-      const input = document.createElement('input');
-      input.type = 'file'; input.accept = 'image/*';
-      input.onchange = e=>{
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = ()=> {
-          const slot = document.getElementById('logoSlot');
-          slot.innerHTML = `<img src="${reader.result}" style="max-width:100%;max-height:100%;">`;
-        };
-        reader.readAsDataURL(file);
-      };
-      input.click();
-    }
   </script>
 </body>
 </html>
