@@ -1,10 +1,8 @@
-// === GENEROVÁNÍ PDF ===
 document.getElementById('makePdf').addEventListener('click', async () => {
   const invoice = document.getElementById('invoice');
   const logoSlot = document.getElementById('logoSlot');
   let total = 0;
 
-  // Přepočet položek
   document.querySelectorAll('.row-item').forEach(row => {
     const qty = parseFloat(row.children[1].textContent.replace(/\D/g, '') || 0);
     const unit = parseFloat(row.children[2].textContent.replace(/\D/g, '') || 0);
@@ -13,18 +11,16 @@ document.getElementById('makePdf').addEventListener('click', async () => {
     total += subtotal;
   });
 
-  document.getElementById('grandTotal').textContent = total.toLocaleString('cs-CZ', {
-    style: 'currency',
-    currency: 'CZK'
-  });
-
+  document.getElementById('grandTotal').textContent = total.toLocaleString('cs-CZ', { style: 'currency', currency: 'CZK' });
   await buildQR(total);
 
-  // === 💡 Dočasně skryj rámeček loga při exportu ===
-  const prevBorder = logoSlot.style.border;
+  // === SCHOVÁNÍ RÁMEČKU LOGA ===
+  // Pokud je vloženo logo, zachová se obrázek ale border se odstraní
+  const logoImg = logoSlot.querySelector('img');
+  const hasImage = !!logoImg;
+  let prevBorder = logoSlot.style.border;
   logoSlot.style.border = 'none';
 
-  // Generování PDF
   await html2pdf().set({
     margin: 0,
     filename: 'faktura.pdf',
@@ -33,28 +29,8 @@ document.getElementById('makePdf').addEventListener('click', async () => {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   }).from(invoice).save();
 
-  // === 💡 Po exportu obnov rámeček ===
-  logoSlot.style.border = prevBorder;
-});
-
-
-// === LOGO UPLOAD ===
-document.getElementById('logoSlot').addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = event => {
-      const logoSlot = document.getElementById('logoSlot');
-      logoSlot.innerHTML = `<img src="${event.target.result}" alt="Logo">`;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  input.click();
+  // === OBNOVENÍ RÁMEČKU ===
+  if (!hasImage) {
+    logoSlot.style.border = prevBorder;
+  }
 });
