@@ -18,10 +18,12 @@ document.getElementById('makePdf').addEventListener('click', async()=>{
     jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
   }).from(invoice).save();
   });
+  // === LOGO UPLOAD ===
   document.getElementById('logoSlot').addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
+  
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -33,5 +35,6 @@ document.getElementById('makePdf').addEventListener('click', async()=>{
       };
       reader.readAsDataURL(file);
     };
+  
     input.click();
 });
