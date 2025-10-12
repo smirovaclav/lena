@@ -28,8 +28,22 @@ body{
 }
 
 header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-.logo-slot{width:160px;height:80px;border:2px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.logo-slot img{max-width:100%;max-height:100%;object-fit:contain;}
+
+.logo-slot {
+  width: 160px;
+  height: 80px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;           /* ukazatel ruky při najetí */
+  user-select: none;         /* zakáže označování textu */
+}
+.logo-slot * {
+  pointer-events: none;      /* zakáže klikání na vnitřní text nebo obrázek */
+}
 .brand h1{margin:0;font-size:22px;}
 .badge{display:inline-block;background:rgba(11,92,171,.08);color:var(--accent);padding:6px 10px;border-radius:8px;font-weight:600;font-size:12px;}
 .meta{font-size:12px;color:var(--muted);margin-top:8px;}
