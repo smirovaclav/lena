@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Václav Šmíro – Osobní web</title>
+  <meta name="description" content="Osobní stránka ve stylu LinkedIn: profil, projekty, zkušenosti a kontakty." />
+  <style>
+    :root{
+      --bg:#f3f4f6;          /* světlé pozadí */
+      --card:#ffffff;        /* karty */
+      --ink:#0b1324;         /* text */
+      --muted:#6b7280;       /* sekundární text */
+      --brand:#0a66c2;       /* LinkedIn modrá */
+      --ring:rgba(10,102,194,.25);
+      --radius:16px;
+      --shadow:0 10px 25px rgba(0,0,0,.06);
+      --maxw:1024px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;line-height:1.5}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--maxw);margin:auto;padding:24px}
+    header{display:grid;grid-template-columns:96px 1fr;gap:16px;background:linear-gradient(180deg,#dbeafe,transparent);padding:24px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .avatar{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+    .tag{display:inline-flex;align-items:center;gap:8px;background:#e6f2fb;border:1px solid #cfe6fb;color:#0a4f95;padding:6px 10px;border-radius:999px;font-size:.9rem}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer;box-shadow:0 6px 16px var(--ring)}
+    .btn.secondary{background:#eef2f7;color:#0a4f95;border:1px solid #d7dee8;box-shadow:none}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:24px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    .card h2{margin:0 0 12px;font-size:1.25rem}
+    .list{display:grid;gap:16px}
+    .item{display:grid;grid-template-columns:auto 1fr;gap:14px}
+    .bullet{width:12px;height:12px;border-radius:3px;margin-top:6px;background:var(--brand)}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block;background:#f1f5f9;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;margin:4px 6px 0 0;font-size:.9rem}
+    .projects{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+    .project{grid-column:span 6;background:var(--card);border-radius:12px;border:1px solid #eef2f7;padding:16px;transition:transform .15s ease,box-shadow .15s ease}
+    .project:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.08)}
+    .project h3{margin:0 0 8px;font-size:1.05rem}
+    .project p{margin:0 0 10px;color:var(--muted)}
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .badge{border:1px solid #e5e7eb;border-radius:999px;padding:4px 8px;font-size:.85rem;}
+    footer{margin:24px 0;color:var(--muted);text-align:center}
+    /* responsivita */
+    @media (max-width:960px){.grid{grid-template-columns:1fr}.project{grid-column:span 12}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- HLAVIČKA JAKO LINKEDIN PROFIL -->
+    <header>
+      <img class="avatar" src="vaclav.png" alt="Profilová fotka" />
+      <div>
+        <h1 style="margin:0 0 4px">Václav Šmíro</h1>
+        <div class="muted" style="margin-bottom:10px">Data Analyst • Asset Pricing • Python/R • Prague</div>
+        <div class="actions">
+          <a class="btn" href="#kontakt">Kontakt</a>
+          <a class="btn secondary" href="CV.pdf" target="_blank" rel="noopener">Stáhnout CV (PDF)</a>
+          <a class="btn secondary" href="https://github.com/smirovaclav" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn secondary" href="https://cz.linkedin.com/in/v%C3%A1clav-%C5%A1m%C3%ADro-b41424155" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="card">
+        <h2>O mně</h2>
+        <p>Krátké představení (2–4 věty): něco si sem prostě napiš Václave. Ich steh voll auf Vanilleeis.</p>
+
+        <h2>Projekty</h2>
+        <section class="projects">
+                    <!-- PROJEKT 1 -->
+          <article class="project">
+            <h3><a href="https://libinst.cz/den-danove-svobody-2025/" target="_blank" rel="noopener">Tax Freedom Day – CZ</a></h3>
+            <p>Analýza Dne daňové svobody, daňového břemene a veřejných financí: Eurostat, OECD, MoF.</p>
+            <div class="badges"><span class="badge">Excel</span><span class="badge">Analysis</span><span class="badge">ETL</span></div>
+          </article>
+          <!-- PROJEKT 2 -->
+          <article class="project">
+            <h3><a href="chance_liga_paper.pdf" target="_blank" rel="noopener">Czech Football Attendance – Panel Data</a></h3>
+            <p>Panelová ekonometrie návštěvnosti: scraping, Meteostat počasí, FE/RE modely, vizualizace.</p>
+            <div class="badges">
+              <span class="badge">Python</span><span class="badge">Pandas</span><span class="badge">PanelOLS</span><span class="badge">MPL</span>
+            </div>
+          </article>
+          <!-- PROJEKT 3 -->
+          <article class="project">
+            <h3><a href="HW3 Paper.pdf" target="_blank" rel="noopener">Asset Pricing</a></h3>
+            <p>FF‑Carhart‑Pastor‑Stambaugh replikace, univariate/bivariate sorts, Fama‑MacBeth regrese.</p>
+            <div class="badges">
+              <span class="badge">R</span><span class="badge">tidyverse</span><span class="badge">stargazer</span>
+            </div>
+          </article>
+        </section>
+
+        <h2>Zkušenosti</h2>
+        <div class="list">
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>Datový analytik – Liberal Institut</strong>
+              <div class="muted">03/2025 – současnost • Praha • project-based</div>
+              <div>Makro a veřejné finance, analýza dat, datové vizualizace.</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>Výzkumný projekt – IES FSV UK</strong>
+              <div class="muted">02/2024 – 06/2024 • Praha</div>
+              <div>Empirické asset‑pricing modely, portfolio sorts, Fama‑MacBeth.</div>
+            </div>
+          </div>
+        </div>
+
+        <h2>Vzdělání</h2>
+        <div class="list">
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>RWTH Aaachen University – Business Administration (Exchange program)</strong>
+              <div class="muted">2025</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>IES FSV UK – Economics and Finance / Central banking and financial regulations (Mgr.)</strong>
+              <div class="muted">2023 – 2026</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>VŠE – Economic Policy / Data Engineering (Ing.)</strong>
+              <div class="muted">2024 – 2026</div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="bullet"></div>
+            <div>
+              <strong>VŠE – National Economics (Bc.)</strong>
+              <div class="muted">2020 – 2023</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="card">
+        <h2>Dovednosti</h2>
+        <div>
+          <span class="pill">Python</span>
+          <span class="pill">R</span>
+          <span class="pill">SQL</span>
+          <span class="pill">Econometrics</span>
+          <span class="pill">Git</span>
+          <span class="pill">LaTeX</span>
+        </div>
+
+        <h2 style="margin-top:18px">Certifikace</h2>
+        <ul>
+          <li>Google Data Analytics (2024)</li>
+          <li>....</li>
+        </ul>
+
+        <h2 id="kontakt" style="margin-top:18px">Kontakt</h2>
+        <p class="muted">Preferujte LinkedIn nebo e‑mail.</p>
+        <p>✉️ <a href="mailto:vaclavsmiro@proton.me">vaclavsmiro@proton.me</a><br/>
+           🌐 <a href="https://github.com/smirovaclav" target="_blank" rel="noopener">smirovaclav.github.io</a>
+        </p>
+      </aside>
+    </div>
+
+    <footer>
+      © <span id="y"></span> Václav Šmíro • Poslední aktualizace: <span id="d"></span>
+    </footer>
+  </div>
+
+  <script>
+    const now = new Date();
+    document.getElementById('y').textContent = now.getFullYear();
+    document.getElementById('d').textContent = now.toLocaleDateString('cs-CZ');
+  </script>
+</body>
+</html>
